@@ -9,6 +9,7 @@
 - Game play page (Describe the game, how to play it, how to win/lose)
   -> The 4 types of “things” in the game will be: Players, Volleyball, Moving Net and Referee (who will move and obstruct the players).
   -> Details on the announcement.
+  -> WebSocket is used for the real-time communication
 
 - Game over page (What will be in it)
   -> Player Statistics
