@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Volleyball Game with Drag Serve</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin: 0;
+            height: 100vh;
+            background-color: lightblue;
+        }
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            border: 2px solid black;
+            background-color: #e0f7fa;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="game-container">
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Game variables
+    const playerWidth = 20;
+    const playerHeight = 80;
+    const ballRadius = 10;
+    const gravity = 0.3;
+    const netHeight = 150;
+    const netWidth = 10;
+
+    let player1 = { x: 50, y: canvas.height - playerHeight, dy: 0, onGround: true, score: 0 };
+    let player2 = { x: canvas.width - 70, y: canvas.height - playerHeight, dy: 0, onGround: true, score: 0 };
+
+    let ball = {
+        x: player1.x + playerWidth + ballRadius, // Start near Player 1
+        y: canvas.height - playerHeight - ballRadius,
+        dx: 0,
+        dy: 0,
+        inServe: true,
+        power: 0,
+        angle: 0,
+    };
+
+    let keys = {};
+    let isDragging = false;
+
+    // Draw the net
+    function drawNet() {
+        ctx.fillStyle = "gray";
+        ctx.fillRect(canvas.width / 2 - netWidth / 2, canvas.height - netHeight, netWidth, netHeight);
+    }
+
+    // Draw a player
+    function drawPlayer(player) {
+        ctx.fillStyle = "blue";
+        ctx.fillRect(player.x, player.y, playerWidth, playerHeight);
+    }
+
+    // Draw the ball
+    function drawBall() {
+        const redIntensity = Math.min(255, Math.floor(ball.power * 1.2)); // Scale red intensity with power
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ballRadius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgb(${redIntensity}, 50, 50)`; // Dynamic color based on power
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    // Draw scores
+    function drawScores() {
+        ctx.fillStyle = "black";
+        ctx.font = "20px Arial";
+        ctx.fillText(`Player 1: ${player1.score}`, 20, 20);
+        ctx.fillText(`Player 2: ${player2.score}`, canvas.width - 140, 20);
+    }
+
+    // Draw the trajectory line during dragging
+    function drawTrajectory() {
+        if (!isDragging) return;
+
+        const power = Math.min(ball.power, 200); // Limit max power
+        const angle = ball.angle;
+
+        const endX = ball.x + power * Math.cos(angle);
+        const endY = ball.y - power * Math.sin(angle);
+
+        // Draw trajectory line
+        ctx.beginPath();
+        ctx.moveTo(ball.x, ball.y);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = `rgba(255, 0, 0, ${0.5 + ball.power / 400})`; // Opacity increases with power
+        ctx.lineWidth = 3;
+        ctx.stroke();
+    }
+
+    // Reset the ball for a new serve
+    function resetBall() {
+        ball.x = player1.x + playerWidth + ballRadius; // Start near Player 1
+        ball.y = canvas.height - playerHeight - ballRadius;
+        ball.dx = 0;
+        ball.dy = 0;
+        ball.inServe = true;
+    }
+
+    // Handle serving
+    function serveBall() {
+        const radians = ball.angle;
+        ball.dx = ball.power * Math.cos(radians) / 10;
+        ball.dy = -ball.power * Math.sin(radians) / 10; // Negative for upward motion
+        ball.inServe = false;
+    }
+
+    // Handle ball collision with players
+    function handlePlayerCollision(player) {
+        if (
+            ball.x + ballRadius > player.x &&
+            ball.x - ballRadius < player.x + playerWidth &&
+            ball.y + ballRadius > player.y &&
+            ball.y - ballRadius < player.y + playerHeight
+        ) {
+            // Adjust ball velocity based on collision point
+            ball.dy = -Math.abs(ball.dy); // Reflect vertically
+            ball.dx = ball.x > player.x + playerWidth / 2 ? 2 : -2; // Reflect horizontally based on side
+        }
+    }
+
+    // Update ball position
+    function updateBall() {
+        if (ball.inServe) return;
+
+        ball.x += ball.dx;
+        ball.y += ball.dy;
+
+        // Apply gravity
+        ball.dy += gravity;
+
+        // Check collisions with players
+        handlePlayerCollision(player1);
+        handlePlayerCollision(player2);
+
+        // Ball hits the ground
+        if (ball.y + ballRadius > canvas.height) {
+            if (ball.x < canvas.width / 2) {
+                player2.score++;
+            } else {
+                player1.score++;
+            }
+            resetBall();
+        }
+
+        // Ball collision with net
+        if (
+            ball.x + ballRadius > canvas.width / 2 - netWidth / 2 &&
+            ball.x - ballRadius < canvas.width / 2 + netWidth / 2 &&
+            ball.y + ballRadius > canvas.height - netHeight
+        ) {
+            ball.dx = ball.x > canvas.width / 2 ? 1 : -1; // Reflect direction based on position
+            ball.dy = -ball.dy * 0.7; // Bounce slightly
+        }
+    }
+
+    // Update player positions
+    function updatePlayers() {
+        // Player 1 controls
+        if (keys["w"] && player1.onGround) {
+            player1.dy = -8;
+            player1.onGround = false;
+        }
+        if (keys["a"] && player1.x > 0) {
+            player1.x -= 5;
+        }
+        if (keys["d"] && player1.x < canvas.width / 2 - playerWidth) {
+            player1.x += 5;
+        }
+
+        // Player 2 controls
+        if (keys["ArrowUp"] && player2.onGround) {
+            player2.dy = -8;
+            player2.onGround = false;
+        }
+        if (keys["ArrowLeft"] && player2.x > canvas.width / 2 + netWidth) {
+            player2.x -= 5;
+        }
+        if (keys["ArrowRight"] && player2.x < canvas.width - playerWidth) {
+            player2.x += 5;
+        }
+
+        // Apply gravity to players
+        [player1, player2].forEach((player) => {
+            player.y += player.dy;
+            player.dy += gravity;
+
+            if (player.y + playerHeight >= canvas.height) {
+                player.y = canvas.height - playerHeight;
+                player.dy = 0;
+                player.onGround = true;
+            }
+        });
+    }
+
+    // Draw everything
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawNet();
+        drawPlayer(player1);
+        drawPlayer(player2);
+        drawBall();
+        drawScores();
+        drawTrajectory();
+    }
+
+    // Game loop
+    function gameLoop() {
+        draw();
+        if (!ball.inServe) updateBall();
+        updatePlayers();
+        requestAnimationFrame(gameLoop);
+    }
+
+    // Mouse events for dragging
+    canvas.addEventListener("mousedown", (e) => {
+        if (!ball.inServe) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        // Check if mouse is on the ball
+        const distance = Math.sqrt((mouseX - ball.x) ** 2 + (mouseY - ball.y) ** 2);
+        if (distance <= ballRadius) {
+            isDragging = true;
+        }
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        const dx = mouseX - ball.x;
+        const dy = ball.y - mouseY;
+
+        ball.angle = Math.atan2(dy, dx); // Calculate angle
+        ball.power = Math.min(Math.sqrt(dx ** 2 + dy ** 2), 200); // Calculate power (limit max)
+    });
+
+    canvas.addEventListener("mouseup", () => {
+        if (!isDragging) return;
+
+        isDragging = false;
+        serveBall(); // Trigger serve
+    });
+
+    // Key events for player movement
+    window.addEventListener("keydown", (e) => {
+        keys[e.key] = true;
+    });
+
+    window.addEventListener("keyup", (e) => {
+        keys[e.key] = false;
+    });
+
+    // Start the game
+    resetBall();
+    gameLoop();
+</script>
+</body>
+</html>
