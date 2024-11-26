@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Volleyball Game with Enhanced Net Interaction</title>
+    <title>Enhanced Volleyball Game</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
             background: linear-gradient(to top, #87ceeb, #ffffff);
+            font-family: 'Arial', sans-serif;
+            height: 100vh; /* Ensure full viewport height */
         }
         canvas {
             display: block;
@@ -16,7 +18,7 @@
             top: 10px;
             width: 100%;
             text-align: center;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             font-size: 24px;
             color: #fff;
             text-shadow: 2px 2px 4px #000;
@@ -29,45 +31,90 @@
         #scoreboard .score-animate {
             transform: scale(1.5);
         }
+        /* Character Selection Styles */
         #characterSelection {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 100%;
-            height: 100%;
-            background: linear-gradient(to top, #87ceeb, #ffffff);
+            height: auto;
+            background-image: url('selection_background.jpg'); /* Add your background image */
+            background-size: cover;
+            background-position: center;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
-            font-family: Arial, sans-serif;
             color: #fff;
             text-shadow: 2px 2px 4px #000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .character-selection-title {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-align: center;
         }
         .character-options {
             display: flex;
-            justify-content: space-around;
-            width: 80%;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin-bottom: 20px;
         }
         .character-card {
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             padding: 20px;
             border-radius: 10px;
             text-align: center;
             cursor: pointer;
-            transition: transform 0.2s;
+            margin: 10px;
+            width: 200px;
+            transition: transform 0.3s, background 0.3s;
+            position: relative;
+            box-sizing: border-box;
         }
         .character-card:hover {
-            transform: scale(1.05);
+            transform: translateY(-10px);
+            background: rgba(0, 0, 0, 0.8);
         }
         .character-selected {
             border: 3px solid yellow;
         }
-        #startGameButton {
-            margin-top: 20px;
-            padding: 10px 20px;
+        .character-card img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        .character-card h2 {
+            margin-top: 10px;
             font-size: 24px;
+        }
+        .character-card p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        #startGameButton {
+            padding: 15px 30px;
+            font-size: 28px;
             cursor: pointer;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        #startGameButton:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        #startGameButton:hover:not(:disabled) {
+            background-color: #218838;
+        }
+        .player-section {
+            margin-bottom: 40px;
+            width: 100%;
+            text-align: center;
         }
     </style>
 </head>
@@ -77,13 +124,17 @@
     <span id="player2Score">Player 2: 0</span>
 </div>
 <div id="characterSelection">
-    <h1>Select Your Character</h1>
-    <div class="character-options" id="player1Characters">
-        <!-- Player 1 character options will be injected here -->
+    <div class="player-section">
+        <h1 class="character-selection-title">Player 1: Select Your Character</h1>
+        <div class="character-options" id="player1Characters">
+            <!-- Player 1 character options will be injected here -->
+        </div>
     </div>
-    <h1>Player 2, Select Your Character</h1>
-    <div class="character-options" id="player2Characters">
-        <!-- Player 2 character options will be injected here -->
+    <div class="player-section">
+        <h1 class="character-selection-title">Player 2: Select Your Character</h1>
+        <div class="character-options" id="player2Characters">
+            <!-- Player 2 character options will be injected here -->
+        </div>
     </div>
     <button id="startGameButton" disabled>Start Game</button>
 </div>
@@ -132,23 +183,34 @@
         {
             name: 'Speedster',
             color: 'red',
-            speedMultiplier: 1.2,
-            sizeMultiplier: 0.8,
+            speedMultiplier: 1.5,
+            sizeMultiplier: 0.9,
             powerMultiplier: 1,
+            image: 'speedster.png', // Add your character image
         },
         {
             name: 'Giant',
             color: 'blue',
             speedMultiplier: 1,
-            sizeMultiplier: 1.2,
+            sizeMultiplier: 1.3,
             powerMultiplier: 1,
+            image: 'giant.png', // Add your character image
         },
         {
             name: 'Powerhouse',
             color: 'green',
             speedMultiplier: 1,
             sizeMultiplier: 1,
-            powerMultiplier: 1,
+            powerMultiplier: 1.5,
+            image: 'powerhouse.png', // Add your character image
+        },
+        {
+            name: 'Balanced',
+            color: 'purple',
+            speedMultiplier: 1.2,
+            sizeMultiplier: 1.1,
+            powerMultiplier: 1.2,
+            image: 'balanced.png', // Add your character image
         },
     ];
 
@@ -157,10 +219,11 @@
             const card = document.createElement('div');
             card.classList.add('character-card');
             card.innerHTML = `
+                <img src="${character.image}" alt="${character.name}">
                 <h2>${character.name}</h2>
-                <p>Speed: ${character.speedMultiplier}</p>
-                <p>Size: ${character.sizeMultiplier}</p>
-                <p>Power: ${character.powerMultiplier}</p>
+                <p><strong>Speed:</strong> ${character.speedMultiplier}</p>
+                <p><strong>Size:</strong> ${character.sizeMultiplier}</p>
+                <p><strong>Power:</strong> ${character.powerMultiplier}</p>
             `;
             card.addEventListener('click', () => {
                 selectCharacter(playerNumber, index, card);
@@ -200,16 +263,16 @@
     });
 
     // Game variables
-    const defaultPlayerWidth = 50;
-    const defaultPlayerHeight = 100;
-    const defaultHeadRadius = 30;
-    const defaultArmWidth = 10;
-    const defaultArmLength = 75;
-    const defaultLegWidth = 20;
-    const defaultLegHeight = 75;
+    const defaultPlayerWidth = 70;  // Increased from 50
+    const defaultPlayerHeight = 140; // Increased from 100
+    const defaultHeadRadius = 40;  // Increased from 30
+    const defaultArmWidth = 15;    // Increased from 10
+    const defaultArmLength = 100;  // Increased from 75
+    const defaultLegWidth = 25;    // Increased from 20
+    const defaultLegHeight = 100;  // Increased from 75
     const ballRadius = 30;
     const gravity = 0.4;
-    let netHeight = 300; // Initial net height
+    let netHeight = 300; // Will be adjusted based on canvas size
     const netWidth = 12;
     const netSpacing = 25;
 
