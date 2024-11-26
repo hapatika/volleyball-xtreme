@@ -1,9 +1,10 @@
 {
   "1": {
     "player1": {
-      "username": "lorax",
-      "name": "Lorax"
+      "username": "sheep",
+      "name": "Sheep"
     },
+    "player2": "",
     "numberOfPlayers": 1,
     "gameID": 1
   }
