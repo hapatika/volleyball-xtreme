@@ -1,0 +1,10 @@
+{
+  "1": {
+    "player1": {
+      "username": "lorax",
+      "name": "Lorax"
+    },
+    "numberOfPlayers": 1,
+    "gameID": 1
+  }
+}

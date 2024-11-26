@@ -1,0 +1,17 @@
+{
+ "lorax": {
+  "username": "lorax",
+  "name": "Lorax",
+  "encryptedPassword": "$2a$10$n/IKZntcfFOtBFceH1hQpuM/1JYX2YTCho/mOP2Wz4FimrqOquys2"
+ },
+ "tanish": {
+  "username": "tanish",
+  "name": "Tanish",
+  "encryptedPassword": "$2b$10$guiNjhR0cW6ce5BSSxVGeuYPrB6gxxgMMfe1b4v6ScqbmgydcIxnu"
+ },
+ "sheep": {
+  "username": "sheep",
+  "name": "Sheep",
+  "encryptedPassword": "$2b$10$e/EE3sVmj3sgw02Uy.mM8.auhn/ZSv0DziWHZyFOin6lsUKeT3cJ6"
+ }
+}
