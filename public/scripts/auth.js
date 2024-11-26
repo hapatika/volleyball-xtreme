@@ -18,15 +18,16 @@ const Auth = (function(){
       return res.json();
     })
     .then((json) => { // You use json here because it's a catch of the promise aboce, which returns the object that you're reading as json in the param. 
-      if (json.status = "success"){
+      if (json.status == "error") {
+        if (onError){
+          console.log("error in sign in")
+          onError(json.error);
+        }
+      }
+      else if (json.status = "success"){
         if(onSuccess){
           user = json.user;
           onSuccess(); // Is this the right way to call it?
-        }
-      }
-      else if (json.status == "error") {
-        if (onError){
-          onError(json.error);
         }
       }
     })
@@ -48,7 +49,7 @@ const Auth = (function(){
       if (json.status == "success"){
         if (onSuccess){
             user = json.user;
-            onSuccess();}
+            onSuccess(user);}
       }
       else if (json.status == "error") {
         if (onError){

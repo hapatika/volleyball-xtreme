@@ -14,9 +14,10 @@ const SignInForm = (function() {
         $("#user-name").text(username);
         $("#user-panel").show()
         $("#active-games-panel").show();
-        console.log("singin");
+        console.log("singin successful");
         Socket.connect();
       }, (error) =>{
+        console.log(error);
         $("#signin-message").text(error); 
       });
     }); 
@@ -70,7 +71,7 @@ const UserPanel = (function(){
   const initialize = function() {
     // Hide it
     $("#user-panel").hide()
-
+  };
     // Click event for the signout button
     $("#signout-button").on("click", () => {
         // Send a signout request
@@ -82,26 +83,25 @@ const UserPanel = (function(){
                 SignInForm.show();
           });
     });
-  };
+  
 
-// This function shows the form with the user
-  const show = function(user) {
+  const show = function() {
       $("#user-panel").show();
 
   };
 
-  // This function hides the form
   const hide = function() {
       $("#user-panel").hide();
   };
 
-  // This function updates the user panel
   const update = function(user) {
+    console.log("update user panel?", user.username);
       if (user) {
-          $("#user-panel .user-name").text(user.name);
+          $("#user-name").text(user.username);
+          UserPanel.show();
       }
       else {
-          $("#user-panel .user-name").text("");
+          $("#user-name").text("");
       }
   };
   return { initialize, show, hide, update };
@@ -111,12 +111,13 @@ const UserPanel = (function(){
 const GamesPanel = (function() {
   // This function initializes the UI
   const initialize = function() {
-
+    $("#active-games-area").hide();
   };
 
   // This function updates the online users panel
   const show = function(){
-    $("#active-games-area").show();
+    $("#active-games-panel").show();
+    $("#gameOptions").show();
     
   }
 
@@ -125,35 +126,60 @@ const GamesPanel = (function() {
   $("#create").on("click", () => {
     const currentUser = Auth.getUser();
     console.log("create in ui.js")
-    Socket.create(currentUser); // Socket transmits the game creation info, in return server sends back the updated active games list. This is updated using functions of Game Panel in ui.js *through* socket.js
     $("#gameOptions").hide();
+    $("#active-games-area").hide();
+    Socket.create(currentUser); // Socket transmits the game creation info, in return server sends back the updated active games list. This is updated using functions of Game Panel in ui.js *through* socket.js
+
     
     // You get sent straight to game play, so the "game play" div should be visible here
     
-  })
+  });
 
   $("#join").on("click", () => {
     // Display active games 
-
+    console.log("Joined from GamesPanel.")
     // When one of the rows is clicked then get gameID and send to server
-    
-    Socket.join(gameID); // This sends back to server to increase num_players and remove gameID from games
+    $("#gameOptions").hide();
+    $("#active-games-area").show();
+
+    const currentUser = Auth.getUser();
+    Socket.join(currentUser); // This sends back to server to increase num_players and remove gameID from games
 
   });
 
+  const enter = function(gameID){
+    console.log("click a game"); // This is not clicking! 
+    const currentUser = Auth.getUser();
+    gameID = parseInt(gameID, 10)
+    $("#active-games-area").hide();
+    $("#game-id-in-panel").text(gameID);
+    $("#game-id-in-panel").show();
+
+    Socket.enter(gameID, currentUser);
+  }
+
+  //$("#game-1").on("click", () => {
+  //// $("#game-${gameID}").on("click", function(){
+  //  console.log("click?"); // This is not clicking! 
+  //  const currentUser = Auth.getUser();
+  //  const clickedRowText = $(this).text();
+  //  const gameID = parseInt(clickedRowText, 10)
+  //  $("#active-games-area").hide();
+  //  Socket.enter(gameID, currentUser);
+//
+  //});
+
   const update = function(activeGames) { // sent back by server
       const GamesArea = document.getElementById("active-games-area");
-      $("#active-games-area").show();
+      // $("#active-games-area").show();
       // Clear the online users area
+      // $("#active-games-area").show();
       GamesArea.innerHTML = "";
-
-
-      // Add the user one-by-one
       for (const game in activeGames) {
-        console.log(game);
-        const gameRow = document.createElement('div');
+        
+        const gameRow = document.createElement('button');
         gameRow.classList.add('game-row');
-        gameRow.id = 'game-${gameID}';
+        gameRow.id = `game-${game}`;
         gameRow.innerHTML = game;
 
         GamesArea.appendChild(gameRow);
@@ -166,13 +192,43 @@ const removeGame = function(gameID) {
   const GamesArea = document.getElementById("#active-games-area");
   
   // Find the user
-  const game = onlineUsersArea.find("#game-" + gameID);
+  const game = GamesArea.find("#game-" + gameID);
   
   // Remove the user
   if (game.length > 0) game.remove(); // this is not right
 };
 
-  return { initialize, update, removeGame };
+  return { initialize, show, update, removeGame, enter };
+})();
+
+const GamePlay = (function(){
+  let clientgameID;
+  // const user = Auth.getUser();
+
+  const initialize = function(gameID){
+    $("#game-id-in-panel").text(gameID);
+    $("#game-id-in-panel").show();
+    // Show net. 
+    clientgameID = gameID;
+  }
+
+  const initializeP1 = function(){
+    console.log("P1 init");
+  }
+
+  const initializeP2 = function(){
+
+  }
+
+  const score = function(gameID, user){
+    
+  };
+
+  const checkGameEnd = function(gameID){
+
+  }
+
+  return { initialize, initializeP1, initializeP2, score, checkGameEnd };
 })();
 
 const UI = (function() {
@@ -186,7 +242,6 @@ const components = [SignInForm, UserPanel];
 
 const initialize = function() {
   for (const component of components) {
-      console.log(component, "initialised in UI")
       component.initialize();
   }
 }

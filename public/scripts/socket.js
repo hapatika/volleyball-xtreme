@@ -12,10 +12,6 @@ const Socket = (function(){
     socket = io(); // This sends a connection request to the Socket server on the existing host and port (i.e. localhost8000 here)
 
     socket.on("connect", () => {
-      // When the server connects, the things you want from the server immediately are:
-      // socket.emit("get users");
-      // and maybe get active rooms?
-      //socket.emit()
       console.log("socket has connected on client side");
     });
 
@@ -23,28 +19,71 @@ const Socket = (function(){
         GamesPanel.update(activeGames);
     });
 
-  
+    socket.on("join new game", (data) =>{
+      const user = Auth.getUser();
+      const gameID = data.newGameID;
+      const player1 = data.username;
+      const activeGames = data.activeGames;
+      console.log(user, player1);
+      if(user["username"] == player1){
+        console.log("join new game");
+        $("#active-games-area").hide();
+        $("#game-id-in-panel").text(gameID);
+        $("#game-id-in-panel").show();
+        GamePlay.initializeP1();
+        GamesPanel.update(activeGames);
+      }
+    });
 
+    socket.on("game begun", ({gameID, player1, player2}) => { // needs to be implemented on server
+      const user = Auth.getUser();
+      GamePlay.initialize(gameID);
+      if (player1 === user){
+        GamePlay.initializeP1();
+      }
+      if (player2 === user){
+        GamePlay.initialize(gameID);
+        GamePlay.initializeP2();
+      }
+    })
+
+    // socket.on("game end", (gameID)) // needs to be implemented on server
+
+    // socket.on("continue game") // needs to be implemented on server
   };
 
   const create = function(user){
     if (socket && socket.connected) {
-      console.log("create in socket.js")
+      // console.log("create in socket.js")
       socket.emit("create", user);
+      
     }
   };
 
-  const join = function(gameID){
+  const join = function(user){
     if (socket && socket.connected) {
-      socket.emit("create", user);
+      socket.emit("join", user);
+    }
+  }; 
+
+  const enter = function(gameID, user){
+    if (socket && socket.connected) {
+      socket.emit("enter", { gameID, user });
     }
   };
+
+  const score = function(gameID, user){
+
+    // Get socket to access gamesinplay and update the score. 
+  };
+
+    // Get socket to compare score to high score in users and update, remove game from gamesinplay
 
   const disconnect = function() {
     socket.disconnect();
     socket = null;
   };
-  return { getSocket, connect, disconnect, create, join };
+  return { getSocket, connect, disconnect, create, join, enter };
 
 })();
 
