@@ -46,33 +46,30 @@ app.post("/register", (req, res) => {
   // Get the JSON data from the body
   const { username, name, password } = req.body; // From here
   const users = JSON.parse(fs.readFileSync("data/users.json"));
-  if (!username || !password || !name){
-    res.json({
+    if (!username || !password || !name){
+        return res.json({
         status: "error", 
-        error: 'Please complete all fields.' // make an edit here?
+        error: "One of the fields is empty" // make an edit here?
         }); 
-        return;
     };
     if (!containWordCharsOnly(username)){
-        res.json({
+        return res.json({
             status: "error", 
-            error: 'Username should be characters only.'
+            error: "Username can only contain letters, numbers, and underscores."
         });
-        return;
     }
     if ((username in users)){
-        res.json({
+        return res.json({
             status: "error", 
-            error: 'Username is taken.'
+            error: "Username already exists. Please choose a different one."
         });
-        return;
     }
     const encryptedPassword = bcrypt.hashSync(password, 10);
     users[username] = { username, name, encryptedPassword}
 
     fs.writeFileSync("data/users.json",  JSON.stringify(users, null, " "));
     console.log("problem?");
-    res.json({
+    return res.json({
         status: "success", 
     });
 
@@ -94,7 +91,7 @@ app.post("/signin", (req,res) => {
     if (!bcrypt.compareSync(password, userData.encryptedPassword)){
          return res.json({
             status:"error", 
-            error: "Incorrect password."
+            error: "Incorrect password!"
         }); // Lorax / user1 pw is 1234
     }
 
@@ -102,7 +99,7 @@ app.post("/signin", (req,res) => {
 
     req.session.user = userBacktoFE;
 
-    res.json({
+    return res.json({
         status: "success",
         user: userBacktoFE // Do I need to send the password back?
     })
@@ -119,8 +116,8 @@ app.get("/validate", (req, res) => {
 
 app.get("/signout", (req, res) =>{
     req.session.user = null
-    res.json({
-        status: "success",
+    return res.json({
+        status: "success", user: req.session.user
     });
 })
 

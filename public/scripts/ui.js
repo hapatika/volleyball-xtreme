@@ -1,6 +1,8 @@
 const SignInForm = (function() {
 
   const initialize = function(){
+    $(".overlay-panel").hide();
+    $('#overlay').hide();
     // If you need the Avatars to be rendered...but probably not? Don't need avatars in this game. 
     $("#signinform").on("submit", (e) => {
       e.preventDefault(); // Don't just want default submission, go back and check on server-side 
@@ -14,6 +16,9 @@ const SignInForm = (function() {
         $("#user-name").text(username);
         $("#user-panel").show()
         $("#active-games-panel").show();
+        $("#gameOptions").show();
+        $(".user-profile-button").show();
+        $("#game-id-in-panel").text(" "); // Reset back to empty
         console.log("singin successful");
         Socket.connect();
       }, (error) =>{
@@ -32,7 +37,7 @@ const SignInForm = (function() {
       const confirmPassword = $("#reg-confirm").val().trim();
       // Password and confirmation does not match
       if (password != confirmPassword) {
-          // $("#reg-message").text("Passwords do not match.");
+          $("#reg-message").text("Passwords do not match.");
           console.log("Passwords do not match.");
           return;
       }
@@ -42,7 +47,7 @@ const SignInForm = (function() {
             $("#registrationform").get(0).reset();
             $("#reg-message").text("You can sign in now.");
         },
-        (error) => { console.log(error); }
+        (error) => { $("#reg-message").text(error); }
       );
     })
 
@@ -50,8 +55,7 @@ const SignInForm = (function() {
 
   const show = function() {
     console.log("Show form");
-    $("#signInPanel").fadeIn(500);
-    $("#registerPanel").fadeIn(500);
+    $("#overlay").fadeIn(500);
 };
 
 // This function hides the form
@@ -59,8 +63,8 @@ const hide = function() {
     $("#signinform").get(0).reset();
     $("#signin-message").text("");
     $("#register-message").text("");
-    $("#signInPanel").fadeOut(500);
-    $("#registerPanel").fadeOut(500);
+    $(".overlay-panel").fadeOut(500);
+    $("#overlay").fadeOut(500);
 };
 
 return { initialize, show, hide };
@@ -71,7 +75,6 @@ const UserPanel = (function(){
   const initialize = function() {
     // Hide it
     $("#user-panel").hide()
-  };
     // Click event for the signout button
     $("#signout-button").on("click", () => {
         // Send a signout request
@@ -81,8 +84,13 @@ const UserPanel = (function(){
 
                 hide();
                 SignInForm.show();
+                $(".shore").show();
+                $("#characterSelection").hide();
+                $("#gameCanvas").hide();
+                $("#scoreboard").hide();
           });
     });
+  };
   
 
   const show = function() {
@@ -91,6 +99,8 @@ const UserPanel = (function(){
   };
 
   const hide = function() {
+      $(".user-profile-button").hide();
+      $("#active-games-panel").hide();
       $("#user-panel").hide();
   };
 
@@ -132,7 +142,11 @@ const GamesPanel = (function() {
 
     
     // You get sent straight to game play, so the "game play" div should be visible here
-    
+    GamePlay.initialize();
+    $("#characterSelection").show();
+    createCharacterCards(player1CharactersDiv, 1);
+    createCharacterCards(player2CharactersDiv, 2);
+    GamePlay.startGame();
   });
 
   $("#join").on("click", () => {
@@ -212,8 +226,91 @@ const GamePlay = (function(){
     clientgameID = gameID;
   }
 
-  const initializeP1 = function(){
-    console.log("P1 init");
+  const startGame = function(){
+
+    startGameButton.addEventListener('click', () => {
+      $(".shore").hide();
+      $("#gameCanvas").show();
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+      initializePlayers();
+      characterSelection.style.display = 'none';
+      document.getElementById('scoreboard').style.display = 'block';
+      initPositions();
+      gameLoop();
+    });
+
+    canvas.addEventListener("mousedown", (e) => {
+      if (!ball.inServe) return;
+  
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+  
+      const distance = Math.sqrt((mouseX - ball.x) ** 2 + (mouseY - ball.y) ** 2);
+      if (distance <= ballRadius) {
+          isDragging = true;
+      }
+  });
+  
+  canvas.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+  
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+  
+      const dx = mouseX - ball.x;
+      const dy = ball.y - mouseY;
+  
+      ball.angle = Math.atan2(dy, dx);
+      ball.power = Math.min(Math.sqrt(dx ** 2 + dy ** 2), 300);
+  });
+  
+  canvas.addEventListener("mouseup", () => {
+      if (!isDragging) return;
+  
+      isDragging = false;
+      serveBall();
+  });
+  
+  window.addEventListener("keydown", (e) => {
+      if (!keys[e.key]) {
+          keys[e.key] = true;
+  
+          // Player 1 Smash Activation
+          if (e.key === 's') {
+              if (player1.canSmash) {
+                  player1.smashActivated = true;
+              }
+          }
+  
+          // Player 2 Smash Activation
+          if (e.key === 'l') {
+              if (player2.canSmash) {
+                  player2.smashActivated = true;
+              }
+          }
+      }
+  });
+  
+  window.addEventListener("keyup", (e) => {
+      keys[e.key] = false;
+  });
+  
+  // Load all images before starting the game loop
+  const imagesToLoad = [backgroundImage, ballImage, mudIconImage, speedIconImage, enlargeIconImage];
+  let imagesLoaded = 0;
+  
+  imagesToLoad.forEach((img) => {
+      img.onload = () => {
+          imagesLoaded++;
+          if (imagesLoaded === imagesToLoad.length) {
+              // Do nothing here, start game after character selection
+          }
+      };
+  });
+
   }
 
   const initializeP2 = function(){
@@ -228,7 +325,7 @@ const GamePlay = (function(){
 
   }
 
-  return { initialize, initializeP1, initializeP2, score, checkGameEnd };
+  return { initialize, startGame, initializeP2, score, checkGameEnd };
 })();
 
 const UI = (function() {

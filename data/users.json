@@ -18,5 +18,15 @@
   "username": "lorax",
   "name": "lorax",
   "encryptedPassword": "$2b$10$emLY6kDt2cJRhQClwbepBuAGYM7K0OvxuxqSEqGsJvrxgTtA7aaDG"
+ },
+ "del": {
+  "username": "del",
+  "name": "del",
+  "encryptedPassword": "$2b$10$5dn8ehjxiKYmYFk8XiZBLuQ/6tr3fM98D7OJsejBstsRWs5B8cSvm"
+ },
+ "del2": {
+  "username": "del2",
+  "name": "del2",
+  "encryptedPassword": "$2b$10$NixTgLGbZXeQNjjkpOtcvu770E.fG0xXbWxgdgPUkKhp4jZXGBWgK"
  }
 }

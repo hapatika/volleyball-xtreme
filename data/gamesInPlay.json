@@ -1,14 +1,1 @@
-{
-  "1": {
-    "player1": {
-      "username": "lorax",
-      "name": "lorax"
-    },
-    "player2": {
-      "username": "tanish",
-      "name": "Tanish"
-    },
-    "numberOfPlayers": 2,
-    "gameID": 1
-  }
-}
+{}
