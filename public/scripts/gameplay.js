@@ -797,34 +797,43 @@ function updateBallAfterNetCollision() {
     }
 }
 
-// Update player positions and handle smash cooldowns
+// // Update player positions and handle smash cooldowns
 function updatePlayers(player, key, action) {
-    // Player 1 Controls
-    if (player == 1){
-        if (action == "reaction"){
-            if(key == "w"){
-                player2.dy = -12 * player2.speedMultiplier;
-                player2.onGround = false;
-            } else if (key == "a"){
-                player2.x -= 12 * player2.speedMultiplier;
-            } else if (key =="d"){
-                player2.x += 12 * player2.speedMultiplier;
-            }
+    const oppositePlayer = player === 1 ? player2 : player1;
+    const sendPlayer = player === 1 ? 2 : 1;
+    let keyAction;
+    // Handle reactions for both players
+    if (action === "reaction") {
+        if (key === "w") {
+            oppositePlayer.dy = -12 * oppositePlayer.speedMultiplier;
+            oppositePlayer.onGround = false;
+        } else if (key === "a") {
+            oppositePlayer.x -= 12 * oppositePlayer.speedMultiplier;
+        } else if (key === "d") {
+            oppositePlayer.x += 12 * oppositePlayer.speedMultiplier;
         }
-        else {
+    } else {
+        // Player 1 Controls
+        if (player == 1){
             if (!player1.isStuck) {
                 if ((keys["w"] && player1.onGround) || (keys["ArrowUp"] && player1.onGround)) {
                     player1.dy = -12 * player1.speedMultiplier;
                     player1.onGround = false;
-                    key = "w";
+                    keyAction = "w";
+                    Socket.updatePlayers(sendPlayer, keyAction, "reaction");
+                    console.log("sending: "+ sendPlayer + keyAction)
                 }
                 if ((keys["a"] && player1.x > 0)||(keys["ArrowLeft"] && player1.x > 0)) {
                     player1.x -= 12 * player1.speedMultiplier;
-                    key = "a";
+                    keyAction = "a";
+                    Socket.updatePlayers(sendPlayer, keyAction, "reaction");
+                    console.log("sending: "+ sendPlayer + keyAction)
                 }
                 if ((keys["d"] && player1.x < canvas.width / 2 - getPlayerWidth(player1)) || (keys["ArrowRight"] && player1.x < canvas.width / 2 - getPlayerWidth(player1))) {
                     player1.x += 12 * player1.speedMultiplier;
-                    key = "d";
+                    keyAction = "d";
+                    Socket.updatePlayers(sendPlayer, keyAction, "reaction");
+                    console.log("sending: "+ sendPlayer + keyAction)
                 }
             } else {
                 // Check if stuck duration is over
@@ -833,84 +842,76 @@ function updatePlayers(player, key, action) {
                 }
             }
         }
+
+        // Player 2 Controls
+        else if (player == 2) {
+                if (!player2.isStuck) {
+                    if ((keys["ArrowUp"] && player2.onGround) || (keys["w"] && player2.onGround)) {
+                        player2.dy = -12 * player2.speedMultiplier;
+                        player2.onGround = false;
+                        keyAction = "w";
+                        Socket.updatePlayers(sendPlayer, keyAction, "reaction");
+                        console.log("sending: "+ sendPlayer + keyAction)
+                    }
+                    if ((keys["ArrowLeft"] && player2.x > canvas.width / 2 + netWidth) || (keys["a"] && player2.x > canvas.width / 2 + netWidth)) {
+                        player2.x -= 12 * player2.speedMultiplier;
+                        keyAction = "a";
+                        Socket.updatePlayers(sendPlayer, keyAction, "reaction");
+                        console.log("sending: "+ sendPlayer + keyAction)
+                    }
+                    if ((keys["ArrowRight"] && player2.x < canvas.width - getPlayerWidth(player2)) || (keys["d"] && player2.x < canvas.width - getPlayerWidth(player2))) {
+                        player2.x += 12 * player2.speedMultiplier;
+                        keyAction = "d";
+                        Socket.updatePlayers(sendPlayer, keyAction, "reaction");
+                        console.log("sending: "+ sendPlayer + keyAction)
+                    }
+                } else {
+                    // Check if stuck duration is over
+                    if (Date.now() - player2.stuckTime >= player2.stuckDuration) {
+                        player2.isStuck = false;
+                    }
+                }
+        }
     }
 
-    // Player 2 Controls
-    else if (player == 2) {
-        if (action == "reaction"){
-            if(key == "w"){
-                player1.dy = -12 * player1.speedMultiplier;
-                player1.onGround = false;
-            } else if (key == "a"){
-                player1.x -= 12 * player1.speedMultiplier;
-            } else if (key =="d"){
-                player1.x += 12 * player1.speedMultiplier;
-            }
-        } else {
-            if (!player2.isStuck) {
-                if ((keys["ArrowUp"] && player2.onGround) || (keys["w"] && player2.onGround)) {
-                    player2.dy = -12 * player2.speedMultiplier;
-                    player2.onGround = false;
-                    key = "w";
-                }
-                if ((keys["ArrowLeft"] && player2.x > canvas.width / 2 + netWidth) || (keys["a"] && player2.x > canvas.width / 2 + netWidth)) {
-                    player2.x -= 12 * player2.speedMultiplier;
-                    key = "a";
-                }
-                if ((keys["ArrowRight"] && player2.x < canvas.width - getPlayerWidth(player2)) || (keys["d"] && player2.x < canvas.width - getPlayerWidth(player2))) {
-                    player2.x += 12 * player2.speedMultiplier;
-                    key = "d";
-            } else {
-                // Check if stuck duration is over
-                if (Date.now() - player2.stuckTime >= player2.stuckDuration) {
-                    player2.isStuck = false;
-                }
-            }
+    // Update player positions and handle collisions
+    [player1, player2].forEach((p) => {
+        p.y += p.dy;
+        p.dy += gravity;
+        // Handle ground collision
+        if (p.y + getPlayerHeight(p) + getLegHeight(p) >= canvas.height) {
+            p.y = canvas.height - getPlayerHeight(p) + 5 - getLegHeight(p);
+            p.dy = 0;
+            p.onGround = true;
         }
-        }
+        // Handle cooldowns and power-ups
+        handleCooldownsAndPowerUps(p);
+    });
 }
 
-    [player1, player2].forEach((player) => {
-        player.y += player.dy;
-        player.dy += gravity;
-
-        const playerHeight = getPlayerHeight(player);
-        const legHeight = getLegHeight(player);
-
-        if (player.y + playerHeight + legHeight >= canvas.height) {
-            player.y = canvas.height - playerHeight + 5 - legHeight;
-            player.dy = 0;
-            player.onGround = true;
+function handleCooldownsAndPowerUps(player) {
+    // Smash cooldown handling
+    if (!player.canSmash) {
+        const timeSinceLastSmash = Date.now() - player.lastSmashTime;
+        if (timeSinceLastSmash >= player.smashCooldownTime) {
+            player.canSmash = true;
         }
+    }
 
-        // Smash cooldown handling
-        if (!player.canSmash) {
-            const timeSinceLastSmash = Date.now() - player.lastSmashTime;
-            if (timeSinceLastSmash >= player.smashCooldownTime) {
-                player.canSmash = true;
-            }
+    // Speed power-up duration handling
+    if (player.speedMultiplier > player.sizeMultiplier) {
+        const timeSinceSpeed = Date.now() - player.speedTime;
+        if (timeSinceSpeed >= player.speedDuration) {
+            player.speedMultiplier = player.sizeMultiplier;
         }
+    }
 
-        // Speed power-up duration handling
-        if (player.speedMultiplier > player.sizeMultiplier) {
-            const timeSinceSpeed = Date.now() - player.speedTime;
-            if (timeSinceSpeed >= player.speedDuration) {
-                player.speedMultiplier = player.sizeMultiplier;
-            }
+    // Enlarge power-up duration handling
+    if (player.enlarged) {
+        const timeSinceEnlarge = Date.now() - player.enlargeTime;
+        if (timeSinceEnlarge >= player.enlargeDuration) {
+            player.enlarged = false;
         }
-
-        // Enlarge power-up duration handling
-        if (player.enlarged) {
-            const timeSinceEnlarge = Date.now() - player.enlargeTime;
-            if (timeSinceEnlarge >= player.enlargeDuration) {
-                player.enlarged = false;
-            }
-        }
-    });
-
-    if (action == "action"){
-        const oppositePlayer = player === 1 ? 2 : 1;
-        Socket.updatePlayers(oppositePlayer, key, "reaction");
     }
 }
 
@@ -1006,6 +1007,9 @@ function drawConfetti() {
 
 // Game loop
 let gameLoopId;
+// let playerNumber;
+// let currentKey;
+// let currentAction;
 function gameLoop(player, key, action) {
     draw();
     if (!gameOver) {
@@ -1014,6 +1018,9 @@ function gameLoop(player, key, action) {
         //     updateBallAfterNetCollision();
         // }
         updatePlayers(player, key, action);
+        // if (currentAction == "reaction"){
+        //     currentAction = "action";
+        // }
         // updatePowerUps(); // Update power-ups positions
         // checkPowerUpCollisions(); // Check collision with players
 
@@ -1027,8 +1034,6 @@ function gameLoop(player, key, action) {
     gameLoopId = requestAnimationFrame(() => gameLoop(player, key, "action"));
     //requestAnimationFrame(() => gameLoop(player));
 }
-
-
 
 function returnGameLoopID(){
     return gameLoopId;
