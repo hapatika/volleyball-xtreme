@@ -62,6 +62,10 @@ const Socket = (function(){
       GamePlay.updateGame(whichPlayer, key, action);
     });
 
+    socket.on("enter waiting room", (user) => {
+      GamesPanel.enterWaitingRoom();
+    })
+
     // socket.on("game end", (gameID)) // needs to be implemented on server
 
     // socket.on("continue game") // needs to be implemented on server
