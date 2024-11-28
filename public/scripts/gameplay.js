@@ -32,12 +32,12 @@ const hitSound = new Audio("images/hitball.mp3"); // Path to the hit sound file
 
 // Character selection variables
 const characterSelection = document.getElementById('characterSelection');
-const player1CharactersDiv = document.getElementById('player1Characters');
-const player2CharactersDiv = document.getElementById('player2Characters');
+const playerCharactersDiv = document.getElementById('playerCharacters');
+// const player2CharactersDiv = document.getElementById('player2Characters');
 const startGameButton = document.getElementById('startGameButton');
 let player1CharacterSelected = null;
 let player2CharacterSelected = null;
-
+let tempChosenCharacter;
 const characters = [
     {
         name: 'Speedster',
@@ -73,9 +73,11 @@ const characters = [
     },
 ];
 
-function createCharacterCards(playerDiv, playerNumber) {
+let currentPlayer;
+
+function createCharacterCards(playerDiv) {
     deleteCharacterCards(playerDiv);
-    
+
     characters.forEach((character, index) => {
         const card = document.createElement('div');
         card.classList.add('character-card');
@@ -87,7 +89,7 @@ function createCharacterCards(playerDiv, playerNumber) {
             <p><strong>Power:</strong> ${character.powerMultiplier}</p>
         `;
         card.addEventListener('click', () => {
-            selectCharacter(playerNumber, index, card);
+            selectCharacter(index, card);
         });
         playerDiv.appendChild(card);
     });
@@ -100,24 +102,26 @@ function deleteCharacterCards(playerDiv) {
     });
 }
 
-function selectCharacter(playerNumber, characterIndex, cardElement) {
-    if (playerNumber === 1) {
-        player1CharacterSelected = characterIndex;
-        Array.from(player1CharactersDiv.children).forEach(child => {
-            child.classList.remove('character-selected');
-        });
-        cardElement.classList.add('character-selected');
-    } else {
-        player2CharacterSelected = characterIndex;
-        Array.from(player2CharactersDiv.children).forEach(child => {
-            child.classList.remove('character-selected');
-        });
-        cardElement.classList.add('character-selected');
-    }
-    if (player1CharacterSelected !== null && player2CharacterSelected !== null) {
+function selectCharacter(characterIndex, cardElement) {
+    Array.from(playerCharactersDiv.children).forEach(child => {
+        child.classList.remove('character-selected');
+    });
+    cardElement.classList.add('character-selected');
+    tempChosenCharacter = characterIndex;
+    if (characterIndex !== null) {
         startGameButton.disabled = false;
     }
 }
+
+function returnChosenCharacter(){
+    return tempChosenCharacter;
+}
+
+function setCharacters(char1, char2){
+    player1CharacterSelected = char1;
+    player2CharacterSelected = char2;
+}
+
 
 // TO BE DELETED
 // createCharacterCards(player1CharactersDiv, 1);
@@ -175,7 +179,7 @@ let netDirection = 1;
 let netMoving = false;
 let confettiParticles = [];
 
-function initializePlayers() {
+function initializePlayers(player) {
     const character1 = characters[player1CharacterSelected];
     const character2 = characters[player2CharacterSelected];
 
@@ -224,6 +228,8 @@ function initializePlayers() {
     };
 
     currentServer = player1;
+
+    currentPlayer = player;
 }
 
 // Initialize positions based on canvas size
@@ -792,44 +798,77 @@ function updateBallAfterNetCollision() {
 }
 
 // Update player positions and handle smash cooldowns
-function updatePlayers() {
+function updatePlayers(player, key, action) {
     // Player 1 Controls
-    if (!player1.isStuck) {
-        if (keys["w"] && player1.onGround) {
-            player1.dy = -12 * player1.speedMultiplier;
-            player1.onGround = false;
+    if (player == 1){
+        if (action == "reaction"){
+            if(key == "w"){
+                player2.dy = -12 * player2.speedMultiplier;
+                player2.onGround = false;
+            } else if (key == "a"){
+                player2.x -= 12 * player2.speedMultiplier;
+            } else if (key =="d"){
+                player2.x += 12 * player2.speedMultiplier;
+            }
         }
-        if (keys["a"] && player1.x > 0) {
-            player1.x -= 12 * player1.speedMultiplier;
-        }
-        if (keys["d"] && player1.x < canvas.width / 2 - getPlayerWidth(player1)) {
-            player1.x += 12 * player1.speedMultiplier;
-        }
-    } else {
-        // Check if stuck duration is over
-        if (Date.now() - player1.stuckTime >= player1.stuckDuration) {
-            player1.isStuck = false;
+        else {
+            if (!player1.isStuck) {
+                if ((keys["w"] && player1.onGround) || (keys["ArrowUp"] && player1.onGround)) {
+                    player1.dy = -12 * player1.speedMultiplier;
+                    player1.onGround = false;
+                    key = "w";
+                }
+                if ((keys["a"] && player1.x > 0)||(keys["ArrowLeft"] && player1.x > 0)) {
+                    player1.x -= 12 * player1.speedMultiplier;
+                    key = "a";
+                }
+                if ((keys["d"] && player1.x < canvas.width / 2 - getPlayerWidth(player1)) || (keys["ArrowRight"] && player1.x < canvas.width / 2 - getPlayerWidth(player1))) {
+                    player1.x += 12 * player1.speedMultiplier;
+                    key = "d";
+                }
+            } else {
+                // Check if stuck duration is over
+                if (Date.now() - player1.stuckTime >= player1.stuckDuration) {
+                    player1.isStuck = false;
+                }
+            }
         }
     }
 
     // Player 2 Controls
-    if (!player2.isStuck) {
-        if (keys["ArrowUp"] && player2.onGround) {
-            player2.dy = -12 * player2.speedMultiplier;
-            player2.onGround = false;
+    else if (player == 2) {
+        if (action == "reaction"){
+            if(key == "w"){
+                player1.dy = -12 * player1.speedMultiplier;
+                player1.onGround = false;
+            } else if (key == "a"){
+                player1.x -= 12 * player1.speedMultiplier;
+            } else if (key =="d"){
+                player1.x += 12 * player1.speedMultiplier;
+            }
+        } else {
+            if (!player2.isStuck) {
+                if ((keys["ArrowUp"] && player2.onGround) || (keys["w"] && player2.onGround)) {
+                    player2.dy = -12 * player2.speedMultiplier;
+                    player2.onGround = false;
+                    key = "w";
+                }
+                if ((keys["ArrowLeft"] && player2.x > canvas.width / 2 + netWidth) || (keys["a"] && player2.x > canvas.width / 2 + netWidth)) {
+                    player2.x -= 12 * player2.speedMultiplier;
+                    key = "a";
+                }
+                if ((keys["ArrowRight"] && player2.x < canvas.width - getPlayerWidth(player2)) || (keys["d"] && player2.x < canvas.width - getPlayerWidth(player2))) {
+                    player2.x += 12 * player2.speedMultiplier;
+                    key = "d";
+            } else {
+                // Check if stuck duration is over
+                if (Date.now() - player2.stuckTime >= player2.stuckDuration) {
+                    player2.isStuck = false;
+                }
+            }
         }
-        if (keys["ArrowLeft"] && player2.x > canvas.width / 2 + netWidth) {
-            player2.x -= 12 * player2.speedMultiplier;
         }
-        if (keys["ArrowRight"] && player2.x < canvas.width - getPlayerWidth(player2)) {
-            player2.x += 12 * player2.speedMultiplier;
-        }
-    } else {
-        // Check if stuck duration is over
-        if (Date.now() - player2.stuckTime >= player2.stuckDuration) {
-            player2.isStuck = false;
-        }
-    }
+}
 
     [player1, player2].forEach((player) => {
         player.y += player.dy;
@@ -868,7 +907,14 @@ function updatePlayers() {
             }
         }
     });
+
+    if (action == "action"){
+        const oppositePlayer = player === 1 ? 2 : 1;
+        action = "reaction";
+        Socket.updatePlayers(oppositePlayer, key, action);
+    }
 }
+
 
 // Draw everything
 function draw() {
@@ -960,14 +1006,15 @@ function drawConfetti() {
 }
 
 // Game loop
-function gameLoop() {
+let gameLoopId;
+function gameLoop(player, key, action) {
     draw();
     if (!gameOver) {
         if (!ball.inServe) {
             updateBall();
             updateBallAfterNetCollision();
         }
-        updatePlayers();
+        updatePlayers(player, key, action);
         updatePowerUps(); // Update power-ups positions
         checkPowerUpCollisions(); // Check collision with players
 
@@ -978,5 +1025,15 @@ function gameLoop() {
             }
         }
     }
-    requestAnimationFrame(gameLoop);
+    gameLoopId = requestAnimationFrame(() => gameLoop(player, key, "action"));
+    //requestAnimationFrame(() => gameLoop(player));
+}
+
+function returnGameLoopID(){
+    return gameLoopId;
+}
+
+function stopGameLoop(gameLoopId) {
+    cancelAnimationFrame(gameLoopId);
+    gameLoopId = null;
 }

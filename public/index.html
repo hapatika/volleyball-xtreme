@@ -69,6 +69,10 @@
       </div>
   </div>
 
+    <div id="waiting-screen" style="display:none">
+        <span id="waiting-text">Waiting For Another Player...</span>
+    </div>
+
   <!-- FROM GAMEPLAY HTML -->
     <div id="scoreboard" style="display:none">
         <span id="player1Score">Player 1: 0</span>
@@ -76,17 +80,17 @@
     </div>
     <div id="characterSelection" style="display:none">
         <div class="player-section">
-            <h1 class="character-selection-title">Player 1: Select Your Character</h1>
-            <div class="character-options" id="player1Characters">
+            <h1 class="character-selection-title">Select Your Character</h1>
+            <div class="character-options" id="playerCharacters">
                 <!-- Player 1 character options will be injected here -->
             </div>
         </div>
-        <div class="player-section">
+        <!-- <div class="player-section">
             <h1 class="character-selection-title">Player 2: Select Your Character</h1>
-            <div class="character-options" id="player2Characters">
+            <div class="character-options" id="player2Characters"> -->
                 <!-- Player 2 character options will be injected here -->
-            </div>
-        </div>
+            <!-- </div>
+        </div> -->
         <button id="startGameButton" disabled>Start Game</button>
     </div>
     <canvas id="gameCanvas" style="display:none"></canvas>

@@ -28,5 +28,10 @@
   "username": "del2",
   "name": "del2",
   "encryptedPassword": "$2b$10$NixTgLGbZXeQNjjkpOtcvu770E.fG0xXbWxgdgPUkKhp4jZXGBWgK"
+ },
+ "yas": {
+  "username": "yas",
+  "name": "yas",
+  "encryptedPassword": "$2b$10$mmZJquuO3IU60isVmlkvGemzoWHtvsLM4xAXAI2V7SsjKq704raPa"
  }
 }

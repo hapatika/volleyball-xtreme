@@ -427,3 +427,28 @@ h2 {
   width: 100%;
   text-align: center;
 }
+
+#waiting-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#waiting-text {
+  animation: play-animation 1.5s infinite;
+  color: #1645f5;
+  text-align: center;
+  top: 50%; /* Align the top of the span to the center */
+  left: 50%; /* Align the left of the span to the center */
+  position: absolute;
+  transform: translate(
+    -50%,
+    -50%
+  ); /* Move the span back by 50% of its own width and height */
+}

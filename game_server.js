@@ -158,6 +158,8 @@ io.on("connection", (socket) => {
                 activeGames[newGameID] = {
                     player1: user,
                     player2: "",
+                    player1Char: null,
+                    player2Char: null,
                     numberOfPlayers: 1,
                     gameID: newGameID
                 };
@@ -171,6 +173,8 @@ io.on("connection", (socket) => {
                     activeGames[newGameID] = {
                         player1: user,
                         player2: "",
+                        player1Char: null,
+                        player2Char: null,
                         numberOfPlayers: 1,
                         gameID: newGameID
                     };
@@ -187,6 +191,8 @@ io.on("connection", (socket) => {
                     activeGames[newGameID] = {
                         player1: user,
                         player2:"",
+                        player1Char: null,
+                        player2Char: null,
                         numberOfPlayers: 1,
                         gameID: newGameID
                     };
@@ -209,6 +215,8 @@ io.on("connection", (socket) => {
                 activeGames[newGameID] = {
                     player1: user,
                     player2: "",
+                    player1Char: null,
+                    player2Char: null,
                     numberOfPlayers: 1,
                     gameID: newGameID
                 };
@@ -226,14 +234,38 @@ io.on("connection", (socket) => {
         console.log("this is in enter", gameID, chosenGame);
         chosenGame["player2"] = user;
         chosenGame["numberOfPlayers"] = parseInt(chosenGame["numberOfPlayers"])+1;
-        const gamesInPlay = JSON.parse(fs.readFileSync("data/gamesInPlay.json"));
-        gamesInPlay[gameID] = chosenGame
-        fs.writeFileSync('data/gamesInPlay.json', JSON.stringify(gamesInPlay, null, 2))
+        //const gamesInPlay = JSON.parse(fs.readFileSync("data/gamesInPlay.json"));
+        //gamesInPlay[gameID] = chosenGame
+        fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2))
         // delete activeGames[gameID]; Should not delete here, delete in socket.on(end Game)
         // fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2))
         io.emit("update", activeGames);
     })
 
+    socket.on("choose character", ({index, whichPlayer, gameID}) => {
+        const activeGames = JSON.parse(fs.readFileSync("data/games.json"));
+        const chosenGame = activeGames[gameID];
+        chosenGame["player"+whichPlayer+"Char"] = index;
+        fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
+        if (whichPlayer==2){
+            let char1 = chosenGame["player1Char"];
+            let char2 = chosenGame["player2Char"];
+            io.emit("set characters", {char1, char2});
+        }
+    })
+
+    socket.on("stop wait", (data) => {
+        const { gameID, whichPlayer } = data;
+        
+        socket.emit("room full", {gameID, whichPlayer});
+        socket.broadcast.emit("room full", {gameID, whichPlayer: 1});
+    })
+
+    socket.on("update players", (data) => {
+        const {whichPlayer, key, action } = data;
+        
+        socket.broadcast.emit("update players", {whichPlayer, key, action});
+    })
 
     
 });

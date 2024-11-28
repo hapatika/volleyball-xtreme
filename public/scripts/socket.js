@@ -45,7 +45,22 @@ const Socket = (function(){
         GamePlay.initialize(gameID);
         GamePlay.initializeP2();
       }
-    })
+    });
+
+    socket.on("set characters", ({char1, char2}) => { // needs to be implemented on server
+      setCharacters(char1,char2);
+    });
+
+    socket.on("room full", (data) =>{
+      const { gameID, whichPlayer } = data;
+      GamePlay.initialize(gameID);
+      GamePlay.startGame(whichPlayer);
+    });
+
+    socket.on("update players", (data) =>{
+      const {whichPlayer, key, action  } = data;
+      GamePlay.updateGame(whichPlayer, key, action);
+    });
 
     // socket.on("game end", (gameID)) // needs to be implemented on server
 
@@ -72,6 +87,24 @@ const Socket = (function(){
     }
   };
 
+  const chooseCharacter = function(index, whichPlayer, gameID){
+    if (socket && socket.connected) {
+      socket.emit("choose character", {index, whichPlayer, gameID});
+    }
+  };
+
+  const stopWait = function(gameID, whichPlayer){
+    if (socket && socket.connected) {
+      socket.emit("stop wait", {gameID, whichPlayer});
+    }
+  };
+
+  const updatePlayers = function(whichPlayer, key, action){
+    if (socket && socket.connected) {
+      socket.emit("update players", {whichPlayer, key, action});
+    }
+  };
+
   const score = function(gameID, user){
 
     // Get socket to access gamesinplay and update the score. 
@@ -83,7 +116,7 @@ const Socket = (function(){
     socket.disconnect();
     socket = null;
   };
-  return { getSocket, connect, disconnect, create, join, enter };
+  return { getSocket, connect, disconnect, create, join, enter, chooseCharacter, stopWait, updatePlayers };
 
 })();
 

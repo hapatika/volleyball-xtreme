@@ -88,6 +88,7 @@ const UserPanel = (function(){
                 $("#characterSelection").hide();
                 $("#gameCanvas").hide();
                 $("#scoreboard").hide();
+                $("#waiting-screen").hide();
           });
     });
   };
@@ -139,14 +140,16 @@ const GamesPanel = (function() {
     $("#gameOptions").hide();
     $("#active-games-area").hide();
     Socket.create(currentUser); // Socket transmits the game creation info, in return server sends back the updated active games list. This is updated using functions of Game Panel in ui.js *through* socket.js
-
     
     // You get sent straight to game play, so the "game play" div should be visible here
-    GamePlay.initialize();
     $("#characterSelection").show();
-    createCharacterCards(player1CharactersDiv, 1);
-    createCharacterCards(player2CharactersDiv, 2);
-    GamePlay.startGame();
+    createCharacterCards(playerCharactersDiv);
+    startGameButton.addEventListener('click', () => {
+      $("#characterSelection").hide();
+      let test1 = document.querySelector('#game-id-in-panel').textContent;
+      Socket.chooseCharacter(returnChosenCharacter(), 1, test1);
+      $("#waiting-screen").show();
+    });
   });
 
   $("#join").on("click", () => {
@@ -170,6 +173,13 @@ const GamesPanel = (function() {
     $("#game-id-in-panel").show();
 
     Socket.enter(gameID, currentUser);
+    $("#characterSelection").show();
+    createCharacterCards(playerCharactersDiv);
+    startGameButton.addEventListener('click', () => {
+      $("#characterSelection").hide();
+      Socket.chooseCharacter(returnChosenCharacter(), 2, gameID);
+      Socket.stopWait(gameID, 2);
+    });
   }
 
   //$("#game-1").on("click", () => {
@@ -183,7 +193,7 @@ const GamesPanel = (function() {
 //
   //});
 
-  const update = function(activeGames) { // sent back by server
+  const update = function(activeGames) { // sent back by server, update the available rooms
       const GamesArea = document.getElementById("active-games-area");
       // $("#active-games-area").show();
       // Clear the online users area
@@ -218,27 +228,30 @@ const removeGame = function(gameID) {
 const GamePlay = (function(){
   let clientgameID;
   // const user = Auth.getUser();
+  let currGameLoopID;
 
   const initialize = function(gameID){
-    $("#game-id-in-panel").text(gameID);
-    $("#game-id-in-panel").show();
+    // $("#game-id-in-panel").text(gameID);
+    // $("#game-id-in-panel").show();
     // Show net. 
     clientgameID = gameID;
+    $("#waiting-screen").hide();
+    $(".shore").hide();
   }
 
-  const startGame = function(){
+  const enterCharacter = function(){
+    // temp
+  }
 
-    startGameButton.addEventListener('click', () => {
-      $(".shore").hide();
-      $("#gameCanvas").show();
-      resizeCanvas();
-      window.addEventListener("resize", resizeCanvas);
-      initializePlayers();
-      characterSelection.style.display = 'none';
-      document.getElementById('scoreboard').style.display = 'block';
-      initPositions();
-      gameLoop();
-    });
+  const startGame = function(player){
+    $("#gameCanvas").show();
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    initializePlayers(player);
+    document.getElementById('scoreboard').style.display = 'block';
+    initPositions();
+    gameLoop(player, null, "action");
+    currGameLoopID = returnGameLoopID();
 
     canvas.addEventListener("mousedown", (e) => {
       if (!ball.inServe) return;
@@ -313,6 +326,83 @@ const GamePlay = (function(){
 
   }
 
+  const updateGame = function(whichPlayer, key, action) {
+    stopGameLoop(currGameLoopID);
+    gameLoop(whichPlayer, key, "action");
+    currGameLoopID = returnGameLoopID();
+
+    canvas.addEventListener("mousedown", (e) => {
+      if (!ball.inServe) return;
+  
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+  
+      const distance = Math.sqrt((mouseX - ball.x) ** 2 + (mouseY - ball.y) ** 2);
+      if (distance <= ballRadius) {
+          isDragging = true;
+      }
+  });
+  
+  canvas.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+  
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+  
+      const dx = mouseX - ball.x;
+      const dy = ball.y - mouseY;
+  
+      ball.angle = Math.atan2(dy, dx);
+      ball.power = Math.min(Math.sqrt(dx ** 2 + dy ** 2), 300);
+  });
+  
+  canvas.addEventListener("mouseup", () => {
+      if (!isDragging) return;
+  
+      isDragging = false;
+      serveBall();
+  });
+  
+  window.addEventListener("keydown", (e) => {
+      if (!keys[e.key]) {
+          keys[e.key] = true;
+  
+          // Player 1 Smash Activation
+          if (e.key === 's') {
+              if (player1.canSmash) {
+                  player1.smashActivated = true;
+              }
+          }
+  
+          // Player 2 Smash Activation
+          if (e.key === 'l') {
+              if (player2.canSmash) {
+                  player2.smashActivated = true;
+              }
+          }
+      }
+  });
+  
+  window.addEventListener("keyup", (e) => {
+      keys[e.key] = false;
+  });
+  
+  // Load all images before starting the game loop
+  const imagesToLoad = [backgroundImage, ballImage, mudIconImage, speedIconImage, enlargeIconImage];
+  let imagesLoaded = 0;
+  
+  imagesToLoad.forEach((img) => {
+      img.onload = () => {
+          imagesLoaded++;
+          if (imagesLoaded === imagesToLoad.length) {
+              // Do nothing here, start game after character selection
+          }
+      };
+  });
+  }
+
   const initializeP2 = function(){
 
   }
@@ -325,7 +415,7 @@ const GamePlay = (function(){
 
   }
 
-  return { initialize, startGame, initializeP2, score, checkGameEnd };
+  return { initialize, startGame, initializeP2, score, checkGameEnd, enterCharacter, updateGame };
 })();
 
 const UI = (function() {
