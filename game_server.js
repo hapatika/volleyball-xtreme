@@ -166,6 +166,7 @@ io.on("connection", (socket) => {
                 };
                 fs.writeFile('data/games.json', JSON.stringify(activeGames, null, 2));
                 io.emit("update", activeGames);
+                socket.emit("enter waiting room", user);
             }
             else {
                 // console.log("size != 0, next key sequentially")
@@ -183,6 +184,7 @@ io.on("connection", (socket) => {
                     fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
                     const username = user.username;
                     io.emit("join new game", {newGameID,username, activeGames});
+                    socket.emit("enter waiting room", user);
                 }
                 else {
                     const gameIDs = Object.keys(activeGames);
@@ -202,6 +204,7 @@ io.on("connection", (socket) => {
                     fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
                     const username = user.username;
                     io.emit("join new game", {newGameID,username, activeGames});
+                    socket.emit("enter waiting room", user);
                 }
                 
             }
@@ -228,6 +231,7 @@ io.on("connection", (socket) => {
                 console.log("join new game as", user.username);
                 const username = user.username;
                 io.emit("join new game", {newGameID,username, activeGames});
+                socket.emit("enter waiting room", user);
         }
         else {io.emit("update", activeGames);}
     });
