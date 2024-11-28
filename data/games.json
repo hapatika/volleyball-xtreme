@@ -1,47 +1,17 @@
 {
   "1": {
     "player1": {
-      "username": "yas",
-      "name": "yas"
-    },
-    "player2": {
       "username": "del",
       "name": "del"
+    },
+    "player2": {
+      "username": "yas",
+      "name": "yas"
     },
     "player1Char": 3,
     "player2Char": 3,
     "numberOfPlayers": 2,
     "gameID": 1,
-    "active": false
-  },
-  "2": {
-    "player1": {
-      "username": "del",
-      "name": "del"
-    },
-    "player2": {
-      "username": "yas",
-      "name": "yas"
-    },
-    "player1Char": 3,
-    "player2Char": 2,
-    "numberOfPlayers": 2,
-    "gameID": 2,
-    "active": false
-  },
-  "3": {
-    "player1": {
-      "username": "del",
-      "name": "del"
-    },
-    "player2": {
-      "username": "yas",
-      "name": "yas"
-    },
-    "player1Char": 3,
-    "player2Char": 3,
-    "numberOfPlayers": 2,
-    "gameID": 3,
     "active": false
   }
 }
