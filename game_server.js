@@ -4,6 +4,9 @@ const bcrypt = require("bcrypt");
 const fs = require("fs");
 const session = require("express-session");
 
+fs.writeFileSync("data/games.json", JSON.stringify({}));
+fs.writeFileSync("data/gamesInPlay.json", JSON.stringify({}));
+
 // Create the Express app
 const app = express();
 
@@ -78,22 +81,21 @@ app.post("/register", (req, res) => {
 app.post("/signin", (req,res) => {
     const { username, password } = req.body;
     const ExistingUsers = JSON.parse(fs.readFileSync("data/users.json"));
+    
+    if (!(username in ExistingUsers)){
 
-    // Check if username is in users.
-    if(!(username in ExistingUsers)){
-        res.json({
+         return res.json({
             status: "error", 
-            error: "Player does not exist - please sign in!"
+            error: "Player does not exist - please register!"
         });
-        return;
     }
+
     const userData = ExistingUsers[username];
-    if(!(userData.encryptedPassword, bcrypt.hashSync(password, 10))){
-        res.json({
+    if (!bcrypt.compareSync(password, userData.encryptedPassword)){
+         return res.json({
             status:"error", 
             error: "Incorrect password."
         }); // Lorax / user1 pw is 1234
-        return;
     }
 
     const userBacktoFE = { username: username, name: userData.name };
@@ -116,11 +118,6 @@ app.get("/validate", (req, res) => {
 });
 
 app.get("/signout", (req, res) =>{
-    // if ((req.session.user == null)){
-    //     res.json({
-    //         status: "error"
-    //     });
-    // }
     req.session.user = null
     res.json({
         status: "success",
@@ -150,19 +147,20 @@ io.on("connection", (socket) => {
     });
 
     socket.on("create", (user) =>{
-        console.log("game_server received connect");
+        // console.log("game_server received connect");
         fs.stat("data/games.json", (err, stats) => {
             if (err) {
                 console.error('Error checking file status:', err);
                 return;
             }
-            activeGames = JSON.parse(fs.readFileSync("data/games.json"));
+            let activeGames = JSON.parse(fs.readFileSync("data/games.json"));
             if (stats.size === 0) {
                 // If games.json is empty, assign gameID = 0001
                 const newGameID = 1;
                 console.log(newGameID);
                 activeGames[newGameID] = {
                     player1: user,
+                    player2: "",
                     numberOfPlayers: 1,
                     gameID: newGameID
                 };
@@ -170,36 +168,72 @@ io.on("connection", (socket) => {
                 io.emit("update", activeGames);
             }
             else {
-                console.log("size != 0, next key sequentially")
-                // const gameIDs = Object.keys(activeGames); 
+                // console.log("size != 0, next key sequentially")
                 if (Object.keys(activeGames).length === 0) {
                     const newGameID = 1;
                     activeGames[newGameID] = {
                         player1: user,
+                        player2: "",
                         numberOfPlayers: 1,
                         gameID: newGameID
                     };
                     fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
-                    io.emit("update", activeGames);
+                    const username = user.username;
+                    io.emit("join new game", {newGameID,username, activeGames});
                 }
                 else {
-                    const newGameID = gameIDs[gameIDs.length -1] + 1; // GameID is int type
+                    const gameIDs = Object.keys(activeGames);
+                    let newGameID; // GameID is int type
+                    newGameID = parseInt(gameIDs[gameIDs.length - 1])
+                    newGameID=newGameID+1;
+                    console.log(typeof newGameID);
                     activeGames[newGameID] = {
                         player1: user,
+                        player2:"",
                         numberOfPlayers: 1,
                         gameID: newGameID
                     };
                     fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
-                    io.emit("update", activeGames);
+                    const username = user.username;
+                    io.emit("join new game", {newGameID,username, activeGames});
                 }
                 
             }
         }); 
     });
 
-    socket.on("join", (gameID) => {
+    socket.on("join", (user) => {
+        const activeGames = JSON.parse(fs.readFileSync("data/games.json"))
+        console.log("join", Object.keys(activeGames).length);
+        if (Object.keys(activeGames).length == 0){
+            console.log("Hello, join but list is empyy?");
+            const newGameID = 1;
+                console.log(newGameID);
+                activeGames[newGameID] = {
+                    player1: user,
+                    player2: "",
+                    numberOfPlayers: 1,
+                    gameID: newGameID
+                };
+                fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
+                console.log("join new game as", user.username);
+                const username = user.username;
+                io.emit("join new game", {newGameID,username, activeGames});
+        }
+        else {io.emit("update", activeGames);}
+    });
+
+    socket.on("enter", ({gameID, user}) => {
         const activeGames = JSON.parse(fs.readFileSync("data/games.json"));
-        delete activeGames[gameID];
+        const chosenGame = activeGames[gameID];
+        console.log("this is in enter", gameID, chosenGame);
+        chosenGame["player2"] = user;
+        chosenGame["numberOfPlayers"] = parseInt(chosenGame["numberOfPlayers"])+1;
+        const gamesInPlay = JSON.parse(fs.readFileSync("data/gamesInPlay.json"));
+        gamesInPlay[gameID] = chosenGame
+        fs.writeFileSync('data/gamesInPlay.json', JSON.stringify(gamesInPlay, null, 2))
+        // delete activeGames[gameID]; Should not delete here, delete in socket.on(end Game)
+        // fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2))
         io.emit("update", activeGames);
     })
 
