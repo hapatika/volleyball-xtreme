@@ -226,7 +226,7 @@ function initializePlayers(player) {
         enlargeDuration: 5000, // 5 seconds enlarged
         color: character2.color,
     };
-
+    
     currentServer = player1;
 
     currentPlayer = player;
@@ -1007,20 +1007,14 @@ function drawConfetti() {
 
 // Game loop
 let gameLoopId;
-// let playerNumber;
-// let currentKey;
-// let currentAction;
 function gameLoop(player, key, action) {
     draw();
     if (!gameOver) {
-        // if (!ball.inServe) {
-        //     updateBall();
-        //     updateBallAfterNetCollision();
-        // }
+        if (!ball.inServe) {
+            updateBall();
+            updateBallAfterNetCollision();
+        }
         updatePlayers(player, key, action);
-        // if (currentAction == "reaction"){
-        //     currentAction = "action";
-        // }
         // updatePowerUps(); // Update power-ups positions
         // checkPowerUpCollisions(); // Check collision with players
 
@@ -1032,7 +1026,6 @@ function gameLoop(player, key, action) {
         // }
     }
     gameLoopId = requestAnimationFrame(() => gameLoop(player, key, "action"));
-    //requestAnimationFrame(() => gameLoop(player));
 }
 
 function returnGameLoopID(){

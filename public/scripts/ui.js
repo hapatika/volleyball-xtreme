@@ -142,14 +142,14 @@ const GamesPanel = (function() {
     Socket.create(currentUser); // Socket transmits the game creation info, in return server sends back the updated active games list. This is updated using functions of Game Panel in ui.js *through* socket.js
     
     // You get sent straight to game play, so the "game play" div should be visible here
-    $("#characterSelection").show();
-    createCharacterCards(playerCharactersDiv);
-    startGameButton.addEventListener('click', () => {
-      $("#characterSelection").hide();
-      let test1 = document.querySelector('#game-id-in-panel').textContent;
-      Socket.chooseCharacter(returnChosenCharacter(), 1, test1);
-      $("#waiting-screen").show();
-    });
+    // $("#characterSelection").show();
+    // createCharacterCards(playerCharactersDiv);
+    // startGameButton.addEventListener('click', () => {
+    //   $("#characterSelection").hide();
+    //   let test1 = document.querySelector('#game-id-in-panel').textContent;
+    //   Socket.chooseCharacter(returnChosenCharacter(), 1, test1);
+    //   $("#waiting-screen").show();
+    // });
   });
 
   $("#join").on("click", () => {
@@ -225,7 +225,18 @@ const removeGame = function(gameID) {
   if (game.length > 0) game.remove(); // this is not right
 };
 
-  return { initialize, show, update, removeGame, enter };
+  const enterWaitingRoom = function(){
+    $("#characterSelection").show();
+    createCharacterCards(playerCharactersDiv);
+    startGameButton.addEventListener('click', () => {
+      $("#characterSelection").hide();
+      let test1 = document.querySelector('#game-id-in-panel').textContent;
+      Socket.chooseCharacter(returnChosenCharacter(), 1, test1);
+      $("#waiting-screen").show();
+    });
+  }
+
+  return { initialize, show, update, removeGame, enter, enterWaitingRoom };
 })();
 
 const GamePlay = (function(){
@@ -270,6 +281,7 @@ const GamePlay = (function(){
       if (distance <= ballRadius) {
           isDragging = true;
       }
+      console.log("mouse down: " + player);
   });
   
   canvas.addEventListener("mousemove", (e) => {
@@ -284,6 +296,7 @@ const GamePlay = (function(){
   
       ball.angle = Math.atan2(dy, dx);
       ball.power = Math.min(Math.sqrt(dx ** 2 + dy ** 2), 300);
+      console.log("mouse move: " + player);
   });
   
   canvas.addEventListener("mouseup", () => {
@@ -291,6 +304,7 @@ const GamePlay = (function(){
   
       isDragging = false;
       serveBall();
+      console.log("mouse up: " + player);
   });
   
   window.addEventListener("keydown", (e) => {
