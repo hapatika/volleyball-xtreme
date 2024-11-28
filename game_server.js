@@ -46,33 +46,30 @@ app.post("/register", (req, res) => {
   // Get the JSON data from the body
   const { username, name, password } = req.body; // From here
   const users = JSON.parse(fs.readFileSync("data/users.json"));
-  if (!username || !password || !name){
-    res.json({
+    if (!username || !password || !name){
+        return res.json({
         status: "error", 
-        error: 'Please complete all fields.' // make an edit here?
+        error: "One of the fields is empty" // make an edit here?
         }); 
-        return;
     };
     if (!containWordCharsOnly(username)){
-        res.json({
+        return res.json({
             status: "error", 
-            error: 'Username should be characters only.'
+            error: "Username can only contain letters, numbers, and underscores."
         });
-        return;
     }
     if ((username in users)){
-        res.json({
+        return res.json({
             status: "error", 
-            error: 'Username is taken.'
+            error: "Username already exists. Please choose a different one."
         });
-        return;
     }
     const encryptedPassword = bcrypt.hashSync(password, 10);
     users[username] = { username, name, encryptedPassword}
 
     fs.writeFileSync("data/users.json",  JSON.stringify(users, null, " "));
     console.log("problem?");
-    res.json({
+    return res.json({
         status: "success", 
     });
 
@@ -94,7 +91,7 @@ app.post("/signin", (req,res) => {
     if (!bcrypt.compareSync(password, userData.encryptedPassword)){
          return res.json({
             status:"error", 
-            error: "Incorrect password."
+            error: "Incorrect password!"
         }); // Lorax / user1 pw is 1234
     }
 
@@ -102,7 +99,7 @@ app.post("/signin", (req,res) => {
 
     req.session.user = userBacktoFE;
 
-    res.json({
+    return res.json({
         status: "success",
         user: userBacktoFE // Do I need to send the password back?
     })
@@ -119,8 +116,8 @@ app.get("/validate", (req, res) => {
 
 app.get("/signout", (req, res) =>{
     req.session.user = null
-    res.json({
-        status: "success",
+    return res.json({
+        status: "success", user: req.session.user
     });
 })
 
@@ -161,8 +158,11 @@ io.on("connection", (socket) => {
                 activeGames[newGameID] = {
                     player1: user,
                     player2: "",
+                    player1Char: null,
+                    player2Char: null,
                     numberOfPlayers: 1,
-                    gameID: newGameID
+                    gameID: newGameID,
+                    active: true
                 };
                 fs.writeFile('data/games.json', JSON.stringify(activeGames, null, 2));
                 io.emit("update", activeGames);
@@ -174,8 +174,11 @@ io.on("connection", (socket) => {
                     activeGames[newGameID] = {
                         player1: user,
                         player2: "",
+                        player1Char: null,
+                        player2Char: null,
                         numberOfPlayers: 1,
-                        gameID: newGameID
+                        gameID: newGameID,
+                        active: true
                     };
                     fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
                     const username = user.username;
@@ -190,8 +193,11 @@ io.on("connection", (socket) => {
                     activeGames[newGameID] = {
                         player1: user,
                         player2:"",
+                        player1Char: null,
+                        player2Char: null,
                         numberOfPlayers: 1,
-                        gameID: newGameID
+                        gameID: newGameID,
+                        active: true
                     };
                     fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
                     const username = user.username;
@@ -212,8 +218,11 @@ io.on("connection", (socket) => {
                 activeGames[newGameID] = {
                     player1: user,
                     player2: "",
+                    player1Char: null,
+                    player2Char: null,
                     numberOfPlayers: 1,
-                    gameID: newGameID
+                    gameID: newGameID,
+                    active: true
                 };
                 fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
                 console.log("join new game as", user.username);
@@ -229,14 +238,39 @@ io.on("connection", (socket) => {
         console.log("this is in enter", gameID, chosenGame);
         chosenGame["player2"] = user;
         chosenGame["numberOfPlayers"] = parseInt(chosenGame["numberOfPlayers"])+1;
-        const gamesInPlay = JSON.parse(fs.readFileSync("data/gamesInPlay.json"));
-        gamesInPlay[gameID] = chosenGame
-        fs.writeFileSync('data/gamesInPlay.json', JSON.stringify(gamesInPlay, null, 2))
+        chosenGame["active"] = false;
+        //const gamesInPlay = JSON.parse(fs.readFileSync("data/gamesInPlay.json"));
+        //gamesInPlay[gameID] = chosenGame
+        fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2))
         // delete activeGames[gameID]; Should not delete here, delete in socket.on(end Game)
         // fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2))
         io.emit("update", activeGames);
     })
 
+    socket.on("choose character", ({index, whichPlayer, gameID}) => {
+        const activeGames = JSON.parse(fs.readFileSync("data/games.json"));
+        const chosenGame = activeGames[gameID];
+        chosenGame["player"+whichPlayer+"Char"] = index;
+        fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
+        if (whichPlayer==2){
+            let char1 = chosenGame["player1Char"];
+            let char2 = chosenGame["player2Char"];
+            io.emit("set characters", {char1, char2});
+        }
+    })
+
+    socket.on("stop wait", (data) => {
+        const { gameID, whichPlayer } = data;
+        
+        socket.emit("room full", {gameID, whichPlayer});
+        socket.broadcast.emit("room full", {gameID, whichPlayer: 1});
+    })
+
+    socket.on("update players", (data) => {
+        const {whichPlayer, key, action } = data;
+        
+        socket.broadcast.emit("update players", {whichPlayer, key, action});
+    })
 
     
 });

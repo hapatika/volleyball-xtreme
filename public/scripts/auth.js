@@ -70,13 +70,10 @@ const Auth = (function(){
     })
     .then((json) => {
         if (json.status == "success"){
-            if (onSuccess){
-                onSuccess();
-            }
+            onSuccess();
         }
-        else if (json.status == "error") {
-            if (onError){
-                onError(json.error);}
+        else {
+            onError();
         }
     })
     .catch((err)=> {

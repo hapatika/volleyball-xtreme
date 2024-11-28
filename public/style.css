@@ -1,193 +1,454 @@
 @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P");
 
-:root{
-    --font-color: white;
-    --games-panel-background: 
-
+:root {
+  --font-color: white;
+  --games-panel-background: ;
 }
 
-*{
-    font-family: "Press Start 2P", sans-serif;
+* {
+  font-family: "Press Start 2P", sans-serif;
 }
 body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #fff;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #fff;
+  /* BELOW ADDITION FROM HTML GAMEPLAY */
+  /* background: linear-gradient(to top, #87ceeb, #ffffff);*/
+  /* font-family: 'Arial', sans-serif; */
+}
+
+canvas {
+  display: block;
 }
 
 .background-image {
-    max-width: 100%;
-    max-height: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .content {
-    text-align: center;
-    color: #fff;
-    z-index: 1;
-    margin: 20px;
+  text-align: center;
+  z-index: 1;
+  margin: 20px;
 }
 
 .button-group {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-    margin-top: 50px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 50px;
 }
 
 button {
-    padding: 10px 20px;
-    font-size: 1.2em;
-    font-family: "Press Start 2P", sans-serif;
-    font-weight: bold;
-    font-style: italic;
-    background-color: #333;
-    color: #fff;
-    border: none;
-    cursor: pointer;
+  padding: 10px 20px;
+  font-size: 1.2em;
+  font-family: "Press Start 2P", sans-serif;
+  font-weight: bold;
+  font-style: italic;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  cursor: pointer;
 }
 
-.settings-button { 
-    position: relative;
-    top: 10px;
-    right: 10px;
-    padding: 5px 10px;
-    font-size: 0.8em;
-    background-color: #333;
-    color: #fff;
-    border: none;
-    cursor: pointer;
+.settings-button {
+  position: relative;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  font-size: 0.8em;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  cursor: pointer;
 }
 .panel {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 20px;
-    border-radius: 5px;
-    margin: 10px;
-    max-width: 300px;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px;
+  width: 280px;
+  height: 320px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
-.row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 20px;
-}
 #user-panel {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #000000; /* Green background */
-    opacity: 0.5;
-    color: white; /* White text */
-    padding: 5px 15px; /* Smaller padding for a smaller header */
-    position: fixed; /* Fixes the header to the top */
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000; /* Ensures it's above other content */
+  position: absolute;
+  top: 70px;
+  margin-right: 5px;
+  background: rgba(237, 56, 51, 1);
+  border: 1px solid #fff;
+  padding: 5px 40px;
+  z-index: 1000; /* Make sure it appears on top of other elements */
+  display: flex; /* Use flexbox */
+  align-items: center; /* Vertically center items */
+  justify-content: space-evenly; /* Space out items evenly */
+  border-radius: 20px;
+  color: #fff;
 }
+
 .field-content {
-    display: flex;
-    align-items: center;
+  display: flex; /* Use flexbox for field content */
+  align-items: center; /* Vertically center items */
 }
 
-.user-name {
-    font-size: 14px; /* Smaller font size */
-}
-#signout-button, #settings-button {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-size: 24px;
-    margin-left: 10px; /* Space between buttons */
+#user-name {
+  font-size: 15px; /* Smaller font size */
 }
 
-#signout-button:hover, #settings-button:hover {
-    opacity: 0.7; /* Slightly transparent on hover */
+.user-profile-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  margin-top: -10px;
+  position: fixed;
+  top: 460px;
+  z-index: 1000;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -10px;
+  text-align: center;
+  gap: 10px;
+}
+
+.button-group button {
+  margin: 10px 0px 5px 0px;
+  background-color: #ef4423;
+  border: 2px solid #fff;
+  color: #fff;
+  border-radius: 20px;
+  display: inline-block;
+  margin: 0 5px;
+}
+
+#settings-button {
+  margin-top: -30px;
+}
+
+#signout-button,
+#settings-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+}
+
+#signout-button:hover,
+#settings-button:hover {
+  opacity: 0.5; /* Slightly transparent on hover */
+}
+
+#game-id-in-panel {
+  margin-left: 10px;
+  color: #1645f5;
+  font-weight: bold;
 }
 /* Responsive adjustments */
 @media (max-width: 600px) {
-    #user-panel {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .user-name {
-        font-size: 12px; /* Smaller font size for mobile */
-    }
+  #user-panel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .user-name {
+    font-size: 12px; /* Smaller font size for mobile */
+  }
 }
-/* Form: */
-form input, form select {
-    width: 100%;
+
+form input,
+form select {
+  width: 90%;
+  padding: 10px 15px;
+  border: 2px solid #ef4423; /* Set a border for differentiation */
+  border-radius: 20px;
+  font-size: 70%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  left: 0;
+  margin-bottom: 5px;
 }
-input, select {
-    font-size: 1rem;
-    background: var(--input-background);
-    border: none;
-    border-radius: 20px;
-    padding: 10px 15px;
-}
-input::placeholder, select {
-    color: gray;
+
+input::placeholder,
+select {
+  color: gray;
 }
 
 #active-games-panel {
-    height: 100%;
-    padding: 0;
-    background: var(--games-panel-background);
+  height: 100%;
+  padding: 0;
+  background: var(--games-panel-background);
 }
 
 #active-games-area {
-    background-color: #f0f0f0;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .game-row {
-    background-color: #333;
-    color: white;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 3px;
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 3px;
 }
 
 .button-column {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
-button:hover{
-    opacity:0.7;
+button:hover {
+  opacity: 0.7;
 }
 
-/*
-button {
-    font-weight: bold;
-    height: 40px;
-    border: 1px solid black;
-    color: var(--button-color);
-    background: var(--button-background);
-    box-shadow: 2px 2px 2px rgb(0, 0, 0, 0.4);
-    padding: 0 20px;
-    transition: 1s background;
-    cursor: pointer;
-}*/
+.button-column {
+  display: flex;
+  flex-direction: column;
+}
+
+button:hover {
+  opacity: 0.7;
+}
+
+h1 {
+  margin: 0;
+  text-align: center;
+  padding: 20px;
+  font-size: 300%;
+  color: #ef4423;
+  text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff,
+    -2px 2px 0px #fff;
+}
+
+h2 {
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+  font-size: 130%;
+  color: #ef4423;
+  text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff,
+    -2px 2px 0px #fff;
+}
+.volleyball-title {
+  order: 1;
+  margin-bottom: -5%;
+}
+
+.xtreme-title {
+  order: 2;
+}
+
+#playButton {
+  padding: 3.5% 12%;
+  border-radius: 10px;
+  background-color: #fff;
+  display: inline-block;
+  margin: 10px;
+  position: relative;
+  text-align: center; /* Center the text horizontally */
+  line-height: 1; /* Align text vertically at the center */
+}
+
+#playButton span {
+  animation: play-animation 1.5s infinite;
+  color: #ef4423;
+  top: 50%; /* Align the top of the span to the center */
+  left: 50%; /* Align the left of the span to the center */
+  position: absolute;
+  transform: translate(
+    -50%,
+    -50%
+  ); /* Move the span back by 50% of its own width and height */
+}
+
+@keyframes play-animation {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+#signin-submit,
+#register-submit {
+  padding: 3% 10%;
+  border-radius: 20px;
+  background-color: #ef4423;
+  text-align: center; /* Center the text horizontally */
+  line-height: 1; /* Align text vertically at the center */
+  font-size: 90%;
+  display: flex;
+  margin-left: 20%;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  justify-content: center;
+}
+
+.warning {
+  font-weight: bold;
+  color: #1645f5;
+  text-align: center;
+  font-size: 70%;
+  margin: 15px 5px 5px 7px;
+}
+
+#scoreboard {
+  position: absolute;
+  top: 10px;
+  width: 100%;
+  text-align: center;
+  font-family: "Arial", sans-serif;
+  font-size: 24px;
+  color: #fff;
+  text-shadow: 2px 2px 4px #000;
+  display: none; /* Hide until the game starts */
+}
+#scoreboard span {
+  margin: 0 20px;
+  transition: transform 0.3s ease;
+}
+#scoreboard .score-animate {
+  transform: scale(1.5);
+}
+/* Character Selection Styles */
+#characterSelection {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: auto;
+  background-image: url("selection_background.jpg"); /* Add your background image */
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-shadow: 2px 2px 4px #000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.character-selection-title {
+  font-size: 12px;
+  text-align: center;
+}
+.character-options {
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+  max-width: 600px;
+  margin-bottom: 10px;
+}
+.character-card {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 10px;
+  border-radius: 20px;
+  text-align: center;
+  cursor: pointer;
+  margin: 5px;
+  width: 125px;
+  transition: transform 0.3s, background 0.3s;
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.character-card:hover {
+  transform: translateY(-10px);
+  background: rgba(0, 0, 0, 0.8);
+}
+.character-selected {
+  border: 3px solid yellow;
+}
+.character-card img {
+  width: 100%;
+  border-radius: 20px;
+}
+.character-card h2 {
+  font-size: 8px;
+}
+.character-card p {
+  font-size: 5px;
+}
+#startGameButton {
+  padding: 15px 30px;
+  font-size: 12px;
+  cursor: pointer;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  transition: background 0.3s;
+}
+#startGameButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+#startGameButton:hover:not(:disabled) {
+  background-color: #218838;
+}
+.player-section {
+  margin-bottom: 40px;
+  width: 100%;
+  text-align: center;
+}
+
+#waiting-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#waiting-text {
+  animation: play-animation 1.5s infinite;
+  color: #1645f5;
+  text-align: center;
+  top: 50%; /* Align the top of the span to the center */
+  left: 50%; /* Align the left of the span to the center */
+  position: absolute;
+  transform: translate(
+    -50%,
+    -50%
+  ); /* Move the span back by 50% of its own width and height */
+}
