@@ -200,7 +200,10 @@ const GamesPanel = (function() {
       // $("#active-games-area").show();
       GamesArea.innerHTML = "";
       for (const game in activeGames) {
-        
+        if(activeGames[game]["active"] == false){
+          continue;
+        }
+
         const gameRow = document.createElement('button');
         gameRow.classList.add('game-row');
         gameRow.id = `game-${game}`;
@@ -328,7 +331,7 @@ const GamePlay = (function(){
 
   const updateGame = function(whichPlayer, key, action) {
     stopGameLoop(currGameLoopID);
-    gameLoop(whichPlayer, key, "action");
+    gameLoop(whichPlayer, key, action);
     currGameLoopID = returnGameLoopID();
 
     canvas.addEventListener("mousedown", (e) => {

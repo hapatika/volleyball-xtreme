@@ -33,5 +33,10 @@
   "username": "yas",
   "name": "yas",
   "encryptedPassword": "$2b$10$mmZJquuO3IU60isVmlkvGemzoWHtvsLM4xAXAI2V7SsjKq704raPa"
+ },
+ "poo": {
+  "username": "poo",
+  "name": "poo",
+  "encryptedPassword": "$2b$10$JZHhVrI8siLlHhT09Mgy8epg3Lu0YL6QQ3StcaoB33mYPbnoIvvDS"
  }
 }

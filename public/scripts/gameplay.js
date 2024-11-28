@@ -910,8 +910,7 @@ function updatePlayers(player, key, action) {
 
     if (action == "action"){
         const oppositePlayer = player === 1 ? 2 : 1;
-        action = "reaction";
-        Socket.updatePlayers(oppositePlayer, key, action);
+        Socket.updatePlayers(oppositePlayer, key, "reaction");
     }
 }
 
@@ -1010,24 +1009,26 @@ let gameLoopId;
 function gameLoop(player, key, action) {
     draw();
     if (!gameOver) {
-        if (!ball.inServe) {
-            updateBall();
-            updateBallAfterNetCollision();
-        }
+        // if (!ball.inServe) {
+        //     updateBall();
+        //     updateBallAfterNetCollision();
+        // }
         updatePlayers(player, key, action);
-        updatePowerUps(); // Update power-ups positions
-        checkPowerUpCollisions(); // Check collision with players
+        // updatePowerUps(); // Update power-ups positions
+        // checkPowerUpCollisions(); // Check collision with players
 
-        if (netMoving) {
-            netYPosition += netDirection * 2; // Adjust speed as needed
-            if (netYPosition > 50 || netYPosition < -50) {
-                netDirection *= -1;
-            }
-        }
+        // if (netMoving) {
+        //     netYPosition += netDirection * 2; // Adjust speed as needed
+        //     if (netYPosition > 50 || netYPosition < -50) {
+        //         netDirection *= -1;
+        //     }
+        // }
     }
     gameLoopId = requestAnimationFrame(() => gameLoop(player, key, "action"));
     //requestAnimationFrame(() => gameLoop(player));
 }
+
+
 
 function returnGameLoopID(){
     return gameLoopId;

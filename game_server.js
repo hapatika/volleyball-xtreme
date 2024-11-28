@@ -161,7 +161,8 @@ io.on("connection", (socket) => {
                     player1Char: null,
                     player2Char: null,
                     numberOfPlayers: 1,
-                    gameID: newGameID
+                    gameID: newGameID,
+                    active: true
                 };
                 fs.writeFile('data/games.json', JSON.stringify(activeGames, null, 2));
                 io.emit("update", activeGames);
@@ -176,7 +177,8 @@ io.on("connection", (socket) => {
                         player1Char: null,
                         player2Char: null,
                         numberOfPlayers: 1,
-                        gameID: newGameID
+                        gameID: newGameID,
+                        active: true
                     };
                     fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
                     const username = user.username;
@@ -194,7 +196,8 @@ io.on("connection", (socket) => {
                         player1Char: null,
                         player2Char: null,
                         numberOfPlayers: 1,
-                        gameID: newGameID
+                        gameID: newGameID,
+                        active: true
                     };
                     fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
                     const username = user.username;
@@ -218,7 +221,8 @@ io.on("connection", (socket) => {
                     player1Char: null,
                     player2Char: null,
                     numberOfPlayers: 1,
-                    gameID: newGameID
+                    gameID: newGameID,
+                    active: true
                 };
                 fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
                 console.log("join new game as", user.username);
@@ -234,6 +238,7 @@ io.on("connection", (socket) => {
         console.log("this is in enter", gameID, chosenGame);
         chosenGame["player2"] = user;
         chosenGame["numberOfPlayers"] = parseInt(chosenGame["numberOfPlayers"])+1;
+        chosenGame["active"] = false;
         //const gamesInPlay = JSON.parse(fs.readFileSync("data/gamesInPlay.json"));
         //gamesInPlay[gameID] = chosenGame
         fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2))
