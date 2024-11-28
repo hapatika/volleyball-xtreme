@@ -1,58 +1,158 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Enhanced Volleyball Game</title>
+    <title>Xtreme Volleyball</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
     <style>
         body {
             margin: 0;
             overflow: hidden;
             background: linear-gradient(to top, #87ceeb, #ffffff);
-            font-family: 'Arial', sans-serif;
-            height: 100vh; /* Ensure full viewport height */
+            font-family: 'Press Start 2P', Arial, sans-serif;
+            height: 100vh;
         }
         canvas {
             display: block;
+            image-rendering: pixelated; /* Ensures sprites look pixelated */
+
         }
         #scoreboard {
             position: absolute;
-            top: 10px;
-            width: 100%;
-            text-align: center;
-            font-family: 'Arial', sans-serif;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            font-family: 'Press Start 2P', Arial, sans-serif;
             font-size: 24px;
             color: #fff;
-            text-shadow: 2px 2px 4px #000;
-            display: none; /* Hide until the game starts */
+            display: none;
+            align-items: center;
         }
-        #scoreboard span {
+        #scoreboard .player-score {
+            display: flex;
+            align-items: center;
             margin: 0 20px;
             transition: transform 0.3s ease;
+        }
+        #scoreboard .player-score img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
         }
         #scoreboard .score-animate {
             transform: scale(1.5);
         }
-        /* Character Selection Styles */
-        #characterSelection {
+        /* Background Selection Styles */
+        #backgroundSelection {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 100%;
-            height: auto;
-            background-image: url('selection_background.jpg'); /* Add your background image */
-            background-size: cover;
-            background-position: center;
+            width: 80%;
+            max-width: 1200px;
+            background-color: rgba(0, 0, 0, 0.8);
             display: flex;
             flex-direction: column;
             align-items: center;
+            color: #fff;
+            text-shadow: 2px 2px 4px #000;
+            padding: 20px;
+            font-size: 13px;
+            box-sizing: border-box;
+            border-radius: 20px;
+            overflow: auto;
+            max-height: 90vh;
+        }
+        .background-selection-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .background-options {
+            display: flex;
             justify-content: center;
+            flex-wrap: wrap;
+            max-width: 100%;
+            margin-bottom: 20px;
+        }
+        .background-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            margin: 10px;
+            width: 200px;
+            transition: transform 0.3s, background 0.3s;
+            position: relative;
+            box-sizing: border-box;
+        }
+        .background-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .background-selected {
+            border: 3px solid yellow;
+        }
+        .background-card img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        #proceedToCharacterSelectionButton {
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', Arial, sans-serif;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+        #proceedToCharacterSelectionButton:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        #proceedToCharacterSelectionButton:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        /* Character Selection Styles */
+        #characterSelection {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 1200px;
+            background-image: url('selection_background.jpg');
+            background-size: cover;
+            background-position: center;
+            flex-direction: column;
+            align-items: center;
             color: #fff;
             text-shadow: 2px 2px 4px #000;
             padding: 20px;
             box-sizing: border-box;
+            border-radius: 20px;
+            overflow: auto;
+            max-height: 90vh;
+        }
+        .player-section-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .player-section {
+            margin: 20px;
+            width: 45%;
+            text-align: center;
         }
         .character-selection-title {
-            font-size: 48px;
+            font-size: 32px Press Start 2P;
             margin-bottom: 20px;
             text-align: center;
         }
@@ -60,17 +160,18 @@
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            max-width: 1200px;
+            max-width: 100%;
             margin-bottom: 20px;
         }
         .character-card {
             background: rgba(0, 0, 0, 0.6);
-            padding: 20px;
+            padding: 10px;
             border-radius: 10px;
             text-align: center;
             cursor: pointer;
             margin: 10px;
-            width: 200px;
+            font-size: 10px;
+            width: 150px;
             transition: transform 0.3s, background 0.3s;
             position: relative;
             box-sizing: border-box;
@@ -88,21 +189,22 @@
         }
         .character-card h2 {
             margin-top: 10px;
-            font-size: 24px;
+            font-size: 20px Press Start 2P;
         }
         .character-card p {
             margin: 5px 0;
-            font-size: 16px;
+            font-size: 14px Press Start 2P;
         }
         #startGameButton {
             padding: 15px 30px;
-            font-size: 28px;
+            font-family: 'Press Start 2P', Arial, sans-serif;
             cursor: pointer;
             background-color: #28a745;
             color: #fff;
             border: none;
             border-radius: 10px;
             transition: background 0.3s;
+            margin-top: 20px;
         }
         #startGameButton:disabled {
             background-color: #6c757d;
@@ -111,32 +213,57 @@
         #startGameButton:hover:not(:disabled) {
             background-color: #218838;
         }
-        .player-section {
-            margin-bottom: 40px;
-            width: 100%;
-            text-align: center;
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            #characterSelection,
+            #backgroundSelection {
+                width: 90%;
+            }
+            .player-section,
+            .background-card {
+                width: 100%;
+            }
+            .player-section-container {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
 <div id="scoreboard">
-    <span id="player1Score">Player 1: 0</span>
-    <span id="player2Score">Player 2: 0</span>
+    <div class="player-score" id="player1Score">
+        <img src="player1_icon.png" alt="Player 1">
+        <span>0</span>
+    </div>
+    <div class="player-score" id="player2Score">
+        <img src="player2_icon.png" alt="Player 2">
+        <span>0</span>
+    </div>
+</div>
+<div id="backgroundSelection">
+    <h1 class="background-selection-title">Select Your Map</h1>
+    <div class="background-options">
+        <!-- Background options will be injected here -->
+    </div>
+    <button id="proceedToCharacterSelectionButton" disabled>Proceed</button>
 </div>
 <div id="characterSelection">
-    <div class="player-section">
-        <h1 class="character-selection-title">Player 1: Select Your Character</h1>
-        <div class="character-options" id="player1Characters">
-            <!-- Player 1 character options will be injected here -->
+    <div class="player-section-container">
+        <div class="player-section">
+            <h1 class="character-selection-title">Player 1: Select Your Character</h1>
+            <div class="character-options" id="player1Characters">
+                <!-- Player 1 character options will be injected here -->
+            </div>
+        </div>
+        <div class="player-section">
+            <h1 class="character-selection-title">Player 2: Select Your Character</h1>
+            <div class="character-options" id="player2Characters">
+                <!-- Player 2 character options will be injected here -->
+            </div>
         </div>
     </div>
-    <div class="player-section">
-        <h1 class="character-selection-title">Player 2: Select Your Character</h1>
-        <div class="character-options" id="player2Characters">
-            <!-- Player 2 character options will be injected here -->
-        </div>
-    </div>
-    <button id="startGameButton" disabled>Start Game</button>
+    <button id="startGameButton" disabled>Start Game
+    </button>
 </div>
 <canvas id="gameCanvas"></canvas>
 
@@ -154,7 +281,7 @@
 
     // Load images
     const backgroundImage = new Image();
-    backgroundImage.src = "background.png"; // Path to the background image
+    // We will set backgroundImage.src later after background selection
 
     const ballImage = new Image();
     ballImage.src = "ball.svg"; // Path to the ball SVG file
@@ -171,11 +298,77 @@
     // Load the hit sound
     const hitSound = new Audio("hitball.mp3"); // Path to the hit sound file
 
+    // Background selection variables
+    const backgroundSelection = document.getElementById('backgroundSelection');
+    const backgroundOptionsDiv = backgroundSelection.querySelector('.background-options');
+    const proceedToCharacterSelectionButton = document.getElementById('proceedToCharacterSelectionButton');
+    let selectedBackground = null;
+
+    const backgrounds = [
+        { name: 'Beach', image: 'background_1.png' },
+        { name: 'Mountains', image: 'background_2.png' },
+        { name: 'City', image: 'background_3.png' },
+        { name: 'Forest', image: 'background_4.png' },
+        { name: 'Desert', image: 'background_5.png' },
+        { name: 'Snowy', image: 'background_6.png' },
+        { name: 'Stadium', image: 'background_7.png' },
+        { name: 'Space', image: 'background_8.png' },
+    ];
+
+    function createBackgroundCards() {
+        backgrounds.forEach((background, index) => {
+            const card = document.createElement('div');
+            card.classList.add('background-card');
+            card.innerHTML = `
+                <img src="${background.image}" alt="${background.name}">
+                <h2>${background.name}</h2>
+            `;
+            card.addEventListener('click', () => {
+                selectBackground(index, card);
+            });
+            backgroundOptionsDiv.appendChild(card);
+        });
+    }
+
+    function selectBackground(index, cardElement) {
+        selectedBackground = index;
+        Array.from(backgroundOptionsDiv.children).forEach(child => {
+            child.classList.remove('background-selected');
+        });
+        cardElement.classList.add('background-selected');
+        proceedToCharacterSelectionButton.disabled = false;
+
+        // Change the entire background to the selected image
+        const selectedBackgroundImage = `url('${backgrounds[index].image}')`;
+        document.body.style.backgroundImage = selectedBackgroundImage;
+
+
+    }
+
+    proceedToCharacterSelectionButton.addEventListener('click', () => {
+        backgroundSelection.style.display = 'none';
+        characterSelection.style.display = 'flex';
+
+        // Persist the selected background in the game
+        backgroundImage.src = backgrounds[selectedBackground].image;
+    });
+
+
+    createBackgroundCards();
+
+    proceedToCharacterSelectionButton.addEventListener('click', () => {
+        backgroundSelection.style.display = 'none';
+        characterSelection.style.display = 'flex';
+        // Set the background image for the game
+        backgroundImage.src = backgrounds[selectedBackground].image;
+    });
+
     // Character selection variables
     const characterSelection = document.getElementById('characterSelection');
     const player1CharactersDiv = document.getElementById('player1Characters');
     const player2CharactersDiv = document.getElementById('player2Characters');
     const startGameButton = document.getElementById('startGameButton');
+
     let player1CharacterSelected = null;
     let player2CharacterSelected = null;
 
@@ -183,34 +376,26 @@
         {
             name: 'Speedster',
             color: 'red',
-            speedMultiplier: 1.5,
-            sizeMultiplier: 0.9,
-            powerMultiplier: 1,
-            image: 'speedster.png', // Add your character image
+            speedMultiplier: 1.3,
+            sizeMultiplier: 0.8,
+            powerMultiplier: 0.9,
+            image: 'Speedster_Jump.png', // Add your character image
         },
         {
             name: 'Giant',
             color: 'blue',
-            speedMultiplier: 1,
-            sizeMultiplier: 1.3,
-            powerMultiplier: 1,
-            image: 'giant.png', // Add your character image
-        },
-        {
-            name: 'Powerhouse',
-            color: 'green',
-            speedMultiplier: 1,
-            sizeMultiplier: 1,
-            powerMultiplier: 1.5,
-            image: 'powerhouse.png', // Add your character image
+            speedMultiplier: 0.9,
+            sizeMultiplier: 1.1,
+            powerMultiplier: 0.9,
+            image: 'Giant_Jump.png', // Add your character image
         },
         {
             name: 'Balanced',
             color: 'purple',
-            speedMultiplier: 1.2,
-            sizeMultiplier: 1.1,
-            powerMultiplier: 1.2,
-            image: 'balanced.png', // Add your character image
+            speedMultiplier: 1.0,
+            sizeMultiplier: 1.0,
+            powerMultiplier: 1.0,
+            image: 'Balanced_Jump.png', // Add your character image
         },
     ];
 
@@ -248,6 +433,8 @@
         }
         if (player1CharacterSelected !== null && player2CharacterSelected !== null) {
             startGameButton.disabled = false;
+            startGameButton.style.display = 'block';
+
         }
     }
 
@@ -257,20 +444,27 @@
     startGameButton.addEventListener('click', () => {
         initializePlayers();
         characterSelection.style.display = 'none';
-        document.getElementById('scoreboard').style.display = 'block';
+        document.getElementById('scoreboard').style.display = 'flex';
+
+        // Update the player icons in the scoreboard
+        const player1ScoreImage = document.querySelector("#player1Score img");
+        const player2ScoreImage = document.querySelector("#player2Score img");
+        player1ScoreImage.src = characters[player1CharacterSelected].image;
+        player2ScoreImage.src = characters[player2CharacterSelected].image;
+
         initPositions();
         gameLoop();
     });
 
     // Game variables
-    const defaultPlayerWidth = 70;  // Increased from 50
-    const defaultPlayerHeight = 140; // Increased from 100
-    const defaultHeadRadius = 40;  // Increased from 30
-    const defaultArmWidth = 15;    // Increased from 10
-    const defaultArmLength = 100;  // Increased from 75
-    const defaultLegWidth = 25;    // Increased from 20
-    const defaultLegHeight = 100;  // Increased from 75
-    const ballRadius = 30;
+    const defaultPlayerWidth = 50;  // Reduced size
+    const defaultPlayerHeight = 100; // Reduced size
+    const defaultHeadRadius = 30;  // Reduced size
+    const defaultArmWidth = 10;
+    const defaultArmLength = 75;
+    const defaultLegWidth = 20;
+    const defaultLegHeight = 75;
+    const ballRadius = 25;
     const gravity = 0.4;
     let netHeight = 300; // Will be adjusted based on canvas size
     const netWidth = 12;
@@ -537,19 +731,18 @@
             } else if (powerUp.type === 'enlarge') {
                 ctx.drawImage(enlargeIconImage, powerUp.x - 20, powerUp.y - 20, 40, 40);
             }
-            // Additional power-up types can be added here
         });
     }
 
     // Draw scores
     function drawScores() {
-        document.getElementById("player1Score").textContent = `Player 1: ${player1.score}`;
-        document.getElementById("player2Score").textContent = `Player 2: ${player2.score}`;
+        document.querySelector("#player1Score span").textContent = player1.score;
+        document.querySelector("#player2Score span").textContent = player2.score;
     }
 
     // Animate score when a player scores
     function animateScore(player) {
-        const scoreElement = player === player1 ? document.getElementById("player1Score") : document.getElementById("player2Score");
+        const scoreElement = player === player1 ? document.querySelector("#player1Score") : document.querySelector("#player2Score");
         scoreElement.classList.add("score-animate");
         setTimeout(() => {
             scoreElement.classList.remove("score-animate");
@@ -584,8 +777,8 @@
         ctx.strokeStyle = 'black';
         ctx.strokeRect(20, 60, 100, 10);
         ctx.fillStyle = 'black';
-        ctx.font = '12px Arial';
-        ctx.fillText('P1 Smash', 20, 55); // Adjusted position
+        ctx.font = '12px Press Start 2P';
+        ctx.fillText('P1 Smash', 20, 55);
 
         // Player 2 Smash UI
         ctx.fillStyle = player2.canSmash ? 'green' : 'red';
@@ -593,8 +786,8 @@
         ctx.strokeStyle = 'black';
         ctx.strokeRect(canvas.width - 120, 60, 100, 10);
         ctx.fillStyle = 'black';
-        ctx.font = '12px Arial';
-        ctx.fillText('P2 Smash', canvas.width - 120, 55); // Adjusted position
+        ctx.font = '12px Press Start 2P';
+        ctx.fillText('P2 Smash', canvas.width - 120, 55);
     }
 
     // Reset the ball for a new serve
@@ -621,58 +814,92 @@
     // Handle serving
     function serveBall() {
         const radians = ball.angle;
-        ball.dx = (ball.power * Math.cos(radians) / 10) * currentServer.powerMultiplier;
-        ball.dy = (-ball.power * Math.sin(radians) / 10) * currentServer.powerMultiplier;
+        ball.dx = (ball.power * Math.cos(radians) / 12) * currentServer.powerMultiplier;
+        ball.dy = (-ball.power * Math.sin(radians) / 12) * currentServer.powerMultiplier;
         ball.inServe = false;
     }
 
     // Handle ball collision with players
     function handlePlayerCollision(player, opponent) {
-        const playerWidth = getPlayerWidth(player);
-        const playerHeight = getPlayerHeight(player);
-        const legHeight = getLegHeight(player);
+    const playerWidth = getPlayerWidth(player);
+    const playerHeight = getPlayerHeight(player);
+    const legHeight = getLegHeight(player);
 
-        if (
-            ball.x + ballRadius > player.x &&
-            ball.x - ballRadius < player.x + playerWidth &&
-            ball.y + ballRadius > player.y &&
-            ball.y - ballRadius < player.y + playerHeight + legHeight
-        ) {
-            if (player.smashActivated) {
-                ball.dy = -Math.abs(ball.dy) * 1.5 * player.powerMultiplier; // Increase vertical speed
-                ball.dx = (ball.x - (player.x + playerWidth / 2)) * 0.2 * player.powerMultiplier; // Direction based on hit position
-                // Reset smash
-                player.canSmash = false;
-                player.smashActivated = false;
-                player.lastSmashTime = Date.now();
-                // Smash effect
-                ball.isSmashed = true;
-                ball.smashTime = Date.now();
+    if (
+        ball.x + ballRadius > player.x &&
+        ball.x - ballRadius < player.x + playerWidth &&
+        ball.y + ballRadius > player.y &&
+        ball.y - ballRadius < player.y + playerHeight + legHeight
+    ) {
+        const isJumping = !player.onGround;
+
+        if (player.smashActivated) {
+            // Smash hit
+            const speed = 12 * player.powerMultiplier; // Adjusted speed for smash
+            if (isJumping) {
+                // Player is jumping, send ball towards opponent at 75-degree angle
+                const angleDegrees = 75;
+                const angleRadians = angleDegrees * (Math.PI / 180);
+                const direction = opponent.x > player.x ? 1 : -1;
+
+                ball.dx = direction * speed * Math.cos(angleRadians);
+                ball.dy = -speed * Math.sin(angleRadians);
             } else {
-                ball.dy = -Math.abs(ball.dy) * player.powerMultiplier;
-                ball.dx = (ball.x - (player.x + playerWidth / 2)) * 0.1 * player.powerMultiplier; // Adjusted for better control
+                // Ground smash
+                ball.dy = -Math.abs(ball.dy) * 1.3 * player.powerMultiplier;
+                ball.dx = (ball.x - (player.x + playerWidth / 2)) * 0.2 * player.powerMultiplier;
             }
 
-            hitSound.currentTime = 0;
-            hitSound.play();
+            // Reset smash
+            player.canSmash = false;
+            player.smashActivated = false;
+            player.lastSmashTime = Date.now();
 
-            // Emit particles
-            for (let i = 0; i < 20; i++) {
-                particles.push({
-                    x: ball.x,
-                    y: ball.y,
-                    dx: (Math.random() - 0.5) * 4,
-                    dy: (Math.random() - 0.5) * 4,
-                    size: Math.random() * 5 + 2,
-                    alpha: 1,
-                });
+            // Smash effect
+            ball.isSmashed = true;
+            ball.smashTime = Date.now();
+        } else {
+            // Regular hit
+            if (isJumping) {
+                // Player is jumping, send ball towards opponent at 75-degree angle
+                const speed = 20 * player.powerMultiplier; // Adjusted speed for normal hit
+                const angleDegrees = 65;
+                const angleRadians = angleDegrees * (Math.PI / 180);
+                const direction = opponent.x > player.x ? 1 : -1;
+
+                ball.dx = direction * speed * Math.cos(angleRadians);
+                ball.dy = -speed * Math.sin(angleRadians);
+            } else {
+                // Ground hit
+                ball.dy = -Math.abs(ball.dy) * player.powerMultiplier;
+                ball.dx = (ball.x - (player.x + playerWidth / 2)) * 0.1 * player.powerMultiplier;
             }
         }
+
+        // Play hit sound
+        hitSound.currentTime = 0;
+        hitSound.play();
+
+        // Emit particles
+        for (let i = 0; i < 20; i++) {
+            particles.push({
+                x: ball.x,
+                y: ball.y,
+                dx: (Math.random() - 0.5) * 4,
+                dy: (Math.random() - 0.5) * 4,
+                size: Math.random() * 5 + 2,
+                alpha: 1,
+            });
+        }
     }
+}
+
+
+
 
     // Spawn power-ups at random intervals, falling from the sky
     function spawnPowerUp() {
-        const powerUpTypes = ['mud', 'speed', 'enlarge']; // Added new power-ups
+        const powerUpTypes = ['mud', 'speed', 'enlarge'];
         const type = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
         const side = Math.random() < 0.5 ? 'left' : 'right';
         // Check if there is already a power-up on this side
@@ -926,14 +1153,14 @@
         // Player 1 Controls
         if (!player1.isStuck) {
             if (keys["w"] && player1.onGround) {
-                player1.dy = -12 * player1.speedMultiplier;
+                player1.dy = -10 * player1.speedMultiplier;
                 player1.onGround = false;
             }
             if (keys["a"] && player1.x > 0) {
-                player1.x -= 12 * player1.speedMultiplier;
+                player1.x -= 10 * player1.speedMultiplier;
             }
             if (keys["d"] && player1.x < canvas.width / 2 - getPlayerWidth(player1)) {
-                player1.x += 12 * player1.speedMultiplier;
+                player1.x += 10 * player1.speedMultiplier;
             }
         } else {
             // Check if stuck duration is over
@@ -945,14 +1172,14 @@
         // Player 2 Controls
         if (!player2.isStuck) {
             if (keys["ArrowUp"] && player2.onGround) {
-                player2.dy = -12 * player2.speedMultiplier;
+                player2.dy = -10 * player2.speedMultiplier;
                 player2.onGround = false;
             }
             if (keys["ArrowLeft"] && player2.x > canvas.width / 2 + netWidth) {
-                player2.x -= 12 * player2.speedMultiplier;
+                player2.x -= 10 * player2.speedMultiplier;
             }
             if (keys["ArrowRight"] && player2.x < canvas.width - getPlayerWidth(player2)) {
-                player2.x += 12 * player2.speedMultiplier;
+                player2.x += 10 * player2.speedMultiplier;
             }
         } else {
             // Check if stuck duration is over
@@ -1011,7 +1238,9 @@
         }
 
         // Background
-        ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+        if (backgroundImage.complete) {
+            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+        }
 
         drawNet();
         drawPlayer(player1);
@@ -1035,7 +1264,7 @@
 
         // Winner text
         ctx.fillStyle = 'white';
-        ctx.font = 'bold 72px Arial';
+        ctx.font = 'bold 72px Press Start 2P';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
@@ -1170,7 +1399,7 @@
     });
 
     // Load all images before starting the game loop
-    const imagesToLoad = [backgroundImage, ballImage, mudIconImage, speedIconImage, enlargeIconImage];
+    const imagesToLoad = [ballImage, mudIconImage, speedIconImage, enlargeIconImage];
     let imagesLoaded = 0;
 
     imagesToLoad.forEach((img) => {
