@@ -253,6 +253,9 @@ const GamePlay = (function(){
     initializePlayers(player);
     document.getElementById('scoreboard').style.display = 'block';
     initPositions();
+    // playerNumber = player;
+    // currentKey = null;
+    // currentAction = "action";
     gameLoop(player, null, "action");
     currGameLoopID = returnGameLoopID();
 
@@ -293,6 +296,7 @@ const GamePlay = (function(){
   window.addEventListener("keydown", (e) => {
       if (!keys[e.key]) {
           keys[e.key] = true;
+          // currentKey = e.key;
   
           // Player 1 Smash Activation
           if (e.key === 's') {
@@ -333,6 +337,11 @@ const GamePlay = (function(){
     stopGameLoop(currGameLoopID);
     gameLoop(whichPlayer, key, action);
     currGameLoopID = returnGameLoopID();
+    // gameLoop(playerNumber, currentKey, currentAction);
+
+    // playerNumber = whichPlayer;
+    // currentKey = key;
+    // currentAction = action;
 
     canvas.addEventListener("mousedown", (e) => {
       if (!ball.inServe) return;
@@ -371,6 +380,7 @@ const GamePlay = (function(){
   window.addEventListener("keydown", (e) => {
       if (!keys[e.key]) {
           keys[e.key] = true;
+          currentKey = e.key;
   
           // Player 1 Smash Activation
           if (e.key === 's') {
@@ -404,6 +414,7 @@ const GamePlay = (function(){
           }
       };
   });
+
   }
 
   const initializeP2 = function(){
