@@ -1,38 +1,47 @@
 {
-  "1": {
-    "player1": {
-      "username": "del",
-      "name": "del"
+    "1": {
+      "player1": {
+        "username": "Rishab",
+        "name": "Rishab"
+      },
+      "player2": {
+        "username": "Table",
+        "name": "Table"
+      },
+      "player1Char": 3,
+      "player2Char": 3,
+      "numberOfPlayers": 2,
+      "gameID": 1,
+      "active": false
     },
-    "player2": {
-      "username": "yas",
-      "name": "yas"
+    "2": {
+      "player1": {
+        "username": "Rishab",
+        "name": "Rishab"
+      },
+      "player2": {
+        "username": "Table",
+        "name": "Table"
+      },
+      "player1Char": 3,
+      "player2Char": 3,
+      "numberOfPlayers": 2,
+      "gameID": 2,
+      "active": false
     },
-    "player1Char": 3,
-    "player2Char": 2,
-    "player1Socket": "2lKLhi0ehCmR9swrAAAJ",
-    "player2Socket": "0JTYaaw6_oqRh8y6AAAL",
-    "numberOfPlayers": 2,
-    "gameID": 1,
-    "active": false,
-    "totalPoints": 0
-  },
-  "2": {
-    "player1": {
-      "username": "test",
-      "name": "test"
-    },
-    "player2": {
-      "username": "poo",
-      "name": "poo"
-    },
-    "player1Char": 3,
-    "player2Char": 3,
-    "player1Socket": "u0FxkAALeIa8vVxNAAAN",
-    "player2Socket": "qHu2jh2YQSfqMR--AAAP",
-    "numberOfPlayers": 2,
-    "gameID": 2,
-    "active": false,
-    "totalPoints": 0
+    "3": {
+      "player1": {
+        "username": "Rishab",
+        "name": "Rishab"
+      },
+      "player2": {
+        "username": "Table",
+        "name": "Table"
+      },
+      "player1Char": 3,
+      "player2Char": 3,
+      "numberOfPlayers": 2,
+      "gameID": 3,
+      "active": false
+    }
   }
-}
