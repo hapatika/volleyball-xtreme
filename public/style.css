@@ -262,10 +262,25 @@ h2 {
 .volleyball-title {
   order: 1;
   margin-bottom: -5%;
+  font-size: 75px;
 }
 
 .xtreme-title {
   order: 2;
+  font-size: 75px;
+}
+
+@media (max-width: 1000px) {
+  .volleyball-title {
+    order: 1;
+    margin-bottom: -5%;
+    font-size: 60px;
+  }
+
+  .xtreme-title {
+    order: 2;
+    font-size: 60px;
+  }
 }
 
 #playButton {
@@ -277,6 +292,7 @@ h2 {
   position: relative;
   text-align: center; /* Center the text horizontally */
   line-height: 1; /* Align text vertically at the center */
+  font-size: 25px;
 }
 
 #playButton span {
@@ -451,4 +467,17 @@ h2 {
     -50%,
     -50%
   ); /* Move the span back by 50% of its own width and height */
+}
+
+.shore {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

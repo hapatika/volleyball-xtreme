@@ -160,9 +160,12 @@ io.on("connection", (socket) => {
                     player2: "",
                     player1Char: null,
                     player2Char: null,
+                    player1Socket: socket.id,
+                    player2Socket: null,
                     numberOfPlayers: 1,
                     gameID: newGameID,
-                    active: true
+                    active: true,
+                    totalPoints: 0
                 };
                 fs.writeFile('data/games.json', JSON.stringify(activeGames, null, 2));
                 io.emit("update", activeGames);
@@ -177,9 +180,12 @@ io.on("connection", (socket) => {
                         player2: "",
                         player1Char: null,
                         player2Char: null,
+                        player1Socket: socket.id,
+                        player2Socket: null,
                         numberOfPlayers: 1,
                         gameID: newGameID,
-                        active: true
+                        active: true,
+                        totalPoints: 0
                     };
                     fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
                     const username = user.username;
@@ -197,9 +203,12 @@ io.on("connection", (socket) => {
                         player2:"",
                         player1Char: null,
                         player2Char: null,
+                        player1Socket: socket.id,
+                        player2Socket: null,
                         numberOfPlayers: 1,
                         gameID: newGameID,
-                        active: true
+                        active: true,
+                        totalPoints: 0
                     };
                     fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
                     const username = user.username;
@@ -223,9 +232,12 @@ io.on("connection", (socket) => {
                     player2: "",
                     player1Char: null,
                     player2Char: null,
+                    player1Socket: socket.id,
+                    player2Socket: null,
                     numberOfPlayers: 1,
                     gameID: newGameID,
-                    active: true
+                    active: true,
+                    totalPoints: 0
                 };
                 fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
                 console.log("join new game as", user.username);
@@ -243,6 +255,7 @@ io.on("connection", (socket) => {
         chosenGame["player2"] = user;
         chosenGame["numberOfPlayers"] = parseInt(chosenGame["numberOfPlayers"])+1;
         chosenGame["active"] = false;
+        chosenGame["player2Socket"] = socket.id;
         //const gamesInPlay = JSON.parse(fs.readFileSync("data/gamesInPlay.json"));
         //gamesInPlay[gameID] = chosenGame
         fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2))
@@ -252,29 +265,78 @@ io.on("connection", (socket) => {
     })
 
     socket.on("choose character", ({index, whichPlayer, gameID}) => {
+        let player1Socket;
+        let player2Socket;
         const activeGames = JSON.parse(fs.readFileSync("data/games.json"));
         const chosenGame = activeGames[gameID];
         chosenGame["player"+whichPlayer+"Char"] = index;
+        player1Socket = chosenGame["player1Socket"];
+        player2Socket = chosenGame["player2Socket"];
         fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
         if (whichPlayer==2){
             let char1 = chosenGame["player1Char"];
             let char2 = chosenGame["player2Char"];
-            io.emit("set characters", {char1, char2});
+            // io.emit("set characters", {char1, char2});
+            io.to(player1Socket).emit('set characters', {gameID, char1, char2});
+            io.to(player2Socket).emit('set characters', {gameID, char1, char2});
         }
     })
 
     socket.on("stop wait", (data) => {
         const { gameID, whichPlayer } = data;
-        
-        socket.emit("room full", {gameID, whichPlayer});
-        socket.broadcast.emit("room full", {gameID, whichPlayer: 1});
+        let player1Socket;
+        let player2Socket;
+        const activeGames = JSON.parse(fs.readFileSync("data/games.json"));
+        const chosenGame = activeGames[gameID];
+        player1Socket = chosenGame["player1Socket"];
+        player2Socket = chosenGame["player2Socket"];
+        io.to(player2Socket).emit("room full", {gameID, whichPlayer});
+        io.to(player1Socket).emit("room full", {gameID, whichPlayer: 1});
     })
 
     socket.on("update players", (data) => {
-        const {whichPlayer, key, action } = data;
-        
-        socket.broadcast.emit("update players", {whichPlayer, key, action});
+        const {gameID, whichPlayer, key, action } = data;
+        let sendToWho;
+        const activeGames = JSON.parse(fs.readFileSync("data/games.json"));
+        const chosenGame = activeGames[gameID];
+        if(whichPlayer == 1){
+            sendToWho = chosenGame["player1Socket"];
+        } else if (whichPlayer == 2){
+            sendToWho = chosenGame["player2Socket"];
+        }
+        io.to(sendToWho).emit("update players", {whichPlayer, key, action});
     })
+
+    socket.on("get ranking", (data) => {
+        const {gameID, winner, loser} = data;
+        let winnerUsername;
+        // Update Total Points
+        const activeGames = JSON.parse(fs.readFileSync("data/games.json"));
+        const chosenGame = activeGames[gameID];
+        chosenGame["totalPoints"] = 11;
+        winnerUsername = chosenGame[winner]["username"];
+        fs.writeFileSync('data/games.json', JSON.stringify(activeGames, null, 2));
+
+        // Update Match Wins
+        // The way we update this is dynamic -- Can be changed
+        const gamesInPlay = JSON.parse(fs.readFileSync("data/gamesInPlay.json"));
+        if (gamesInPlay.length === 0) {
+            // Add a new object with the structure username: { match: 0 }
+            const newEntry = {
+                winnerUsername: {
+                    match: 1
+                }
+            };
+            gamesInPlay.push(newEntry);
+        } else {
+            gamesInPlay[winnerUsername]["match"]+=1;
+
+        }
+        // Sort the gamesInPlay array based on the highest number of matches
+        gamesInPlay.sort((a, b) => b.username.match - a.username.match);
+        fs.writeFileSync('gamesinplay.json', JSON.stringify(gamesInPlay, null, 2));
+    });
+
 
     
 });

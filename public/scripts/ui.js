@@ -249,6 +249,7 @@ const GamePlay = (function(){
     // $("#game-id-in-panel").show();
     // Show net. 
     clientgameID = gameID;
+    setGameID(clientgameID);
     $("#waiting-screen").hide();
     $(".shore").hide();
   }
@@ -270,7 +271,7 @@ const GamePlay = (function(){
     gameLoop(player, null, "action");
     currGameLoopID = returnGameLoopID();
 
-    canvas.addEventListener("mousedown", (e) => {
+    window.addEventListener("mousedown", (e) => {
       if (!ball.inServe) return;
   
       const rect = canvas.getBoundingClientRect();
@@ -281,10 +282,9 @@ const GamePlay = (function(){
       if (distance <= ballRadius) {
           isDragging = true;
       }
-      console.log("mouse down: " + player);
   });
   
-  canvas.addEventListener("mousemove", (e) => {
+  window.addEventListener("mousemove", (e) => {
       if (!isDragging) return;
   
       const rect = canvas.getBoundingClientRect();
@@ -296,15 +296,13 @@ const GamePlay = (function(){
   
       ball.angle = Math.atan2(dy, dx);
       ball.power = Math.min(Math.sqrt(dx ** 2 + dy ** 2), 300);
-      console.log("mouse move: " + player);
   });
   
-  canvas.addEventListener("mouseup", () => {
+  window.addEventListener("mouseup", () => {
       if (!isDragging) return;
   
       isDragging = false;
       serveBall();
-      console.log("mouse up: " + player);
   });
   
   window.addEventListener("keydown", (e) => {

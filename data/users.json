@@ -22,21 +22,23 @@
  "del": {
   "username": "del",
   "name": "del",
-  "encryptedPassword": "$2b$10$5dn8ehjxiKYmYFk8XiZBLuQ/6tr3fM98D7OJsejBstsRWs5B8cSvm"
- },
- "del2": {
-  "username": "del2",
-  "name": "del2",
-  "encryptedPassword": "$2b$10$NixTgLGbZXeQNjjkpOtcvu770E.fG0xXbWxgdgPUkKhp4jZXGBWgK"
+  "encryptedPassword": "$2b$10$Kph/CsRb7uX9fuBrcUrCDuvhg8Y2z8qOxytnN.D840HXtRlFsSoHK",
+  "matchWins": 0
  },
  "yas": {
   "username": "yas",
   "name": "yas",
-  "encryptedPassword": "$2b$10$mmZJquuO3IU60isVmlkvGemzoWHtvsLM4xAXAI2V7SsjKq704raPa"
+  "encryptedPassword": "$2b$10$OfYG6uGU3QsGMbw5imh/E.AbiIIk9RR//FZJbSMCNAyrTR7U/vl1u",
+  "matchWins": 0
+ },
+ "test": {
+  "username": "test",
+  "name": "test",
+  "encryptedPassword": "$2b$10$fqaw7Z8VLjS.M6Iabc5Ep.Pug6mWOwWWYaCt5373oFFE54Igz1.JG"
  },
  "poo": {
   "username": "poo",
   "name": "poo",
-  "encryptedPassword": "$2b$10$JZHhVrI8siLlHhT09Mgy8epg3Lu0YL6QQ3StcaoB33mYPbnoIvvDS"
+  "encryptedPassword": "$2b$10$GLRNt.eM/0HmTAEnajFHs.eSj28OZC1zPIqSaiMY8UeQYJmEWwRuu"
  }
 }

@@ -9,9 +9,30 @@
       "name": "yas"
     },
     "player1Char": 3,
-    "player2Char": 3,
+    "player2Char": 2,
+    "player1Socket": "2lKLhi0ehCmR9swrAAAJ",
+    "player2Socket": "0JTYaaw6_oqRh8y6AAAL",
     "numberOfPlayers": 2,
     "gameID": 1,
-    "active": false
+    "active": false,
+    "totalPoints": 0
+  },
+  "2": {
+    "player1": {
+      "username": "test",
+      "name": "test"
+    },
+    "player2": {
+      "username": "poo",
+      "name": "poo"
+    },
+    "player1Char": 3,
+    "player2Char": 3,
+    "player1Socket": "u0FxkAALeIa8vVxNAAAN",
+    "player2Socket": "qHu2jh2YQSfqMR--AAAP",
+    "numberOfPlayers": 2,
+    "gameID": 2,
+    "active": false,
+    "totalPoints": 0
   }
 }

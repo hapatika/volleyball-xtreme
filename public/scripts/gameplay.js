@@ -38,6 +38,7 @@ const startGameButton = document.getElementById('startGameButton');
 let player1CharacterSelected = null;
 let player2CharacterSelected = null;
 let tempChosenCharacter;
+let currGameID;
 const characters = [
     {
         name: 'Speedster',
@@ -178,6 +179,10 @@ let netYPosition = 0;
 let netDirection = 1;
 let netMoving = false;
 let confettiParticles = [];
+
+function setGameID(clientGameID){
+    currGameID = clientGameID;
+};
 
 function initializePlayers(player) {
     const character1 = characters[player1CharacterSelected];
@@ -820,19 +825,19 @@ function updatePlayers(player, key, action) {
                     player1.dy = -12 * player1.speedMultiplier;
                     player1.onGround = false;
                     keyAction = "w";
-                    Socket.updatePlayers(sendPlayer, keyAction, "reaction");
+                    Socket.updatePlayers(currGameID, sendPlayer, keyAction, "reaction");
                     console.log("sending: "+ sendPlayer + keyAction)
                 }
                 if ((keys["a"] && player1.x > 0)||(keys["ArrowLeft"] && player1.x > 0)) {
                     player1.x -= 12 * player1.speedMultiplier;
                     keyAction = "a";
-                    Socket.updatePlayers(sendPlayer, keyAction, "reaction");
+                    Socket.updatePlayers(currGameID, sendPlayer, keyAction, "reaction");
                     console.log("sending: "+ sendPlayer + keyAction)
                 }
                 if ((keys["d"] && player1.x < canvas.width / 2 - getPlayerWidth(player1)) || (keys["ArrowRight"] && player1.x < canvas.width / 2 - getPlayerWidth(player1))) {
                     player1.x += 12 * player1.speedMultiplier;
                     keyAction = "d";
-                    Socket.updatePlayers(sendPlayer, keyAction, "reaction");
+                    Socket.updatePlayers(currGameID, sendPlayer, keyAction, "reaction");
                     console.log("sending: "+ sendPlayer + keyAction)
                 }
             } else {
@@ -850,19 +855,19 @@ function updatePlayers(player, key, action) {
                         player2.dy = -12 * player2.speedMultiplier;
                         player2.onGround = false;
                         keyAction = "w";
-                        Socket.updatePlayers(sendPlayer, keyAction, "reaction");
+                        Socket.updatePlayers(currGameID, sendPlayer, keyAction, "reaction");
                         console.log("sending: "+ sendPlayer + keyAction)
                     }
                     if ((keys["ArrowLeft"] && player2.x > canvas.width / 2 + netWidth) || (keys["a"] && player2.x > canvas.width / 2 + netWidth)) {
                         player2.x -= 12 * player2.speedMultiplier;
                         keyAction = "a";
-                        Socket.updatePlayers(sendPlayer, keyAction, "reaction");
+                        Socket.updatePlayers(currGameID, sendPlayer, keyAction, "reaction");
                         console.log("sending: "+ sendPlayer + keyAction)
                     }
                     if ((keys["ArrowRight"] && player2.x < canvas.width - getPlayerWidth(player2)) || (keys["d"] && player2.x < canvas.width - getPlayerWidth(player2))) {
                         player2.x += 12 * player2.speedMultiplier;
                         keyAction = "d";
-                        Socket.updatePlayers(sendPlayer, keyAction, "reaction");
+                        Socket.updatePlayers(currGameID, sendPlayer, keyAction, "reaction");
                         console.log("sending: "+ sendPlayer + keyAction)
                     }
                 } else {
@@ -1036,3 +1041,5 @@ function stopGameLoop(gameLoopId) {
     cancelAnimationFrame(gameLoopId);
     gameLoopId = null;
 }
+
+

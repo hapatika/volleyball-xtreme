@@ -47,8 +47,9 @@ const Socket = (function(){
       }
     });
 
-    socket.on("set characters", ({char1, char2}) => { // needs to be implemented on server
+    socket.on("set characters", ({gameID, char1, char2}) => { // needs to be implemented on server
       setCharacters(char1,char2);
+      console.log(gameID);
     });
 
     socket.on("room full", (data) =>{
@@ -103,15 +104,16 @@ const Socket = (function(){
     }
   };
 
-  const updatePlayers = function(whichPlayer, key, action){
+  const updatePlayers = function(gameID, whichPlayer, key, action){
     if (socket && socket.connected) {
-      socket.emit("update players", {whichPlayer, key, action});
+      socket.emit("update players", {gameID, whichPlayer, key, action});
     }
   };
 
-  const score = function(gameID, user){
-
-    // Get socket to access gamesinplay and update the score. 
+  const gameOver = function(gameID, winner, loser){
+    if (socket && socket.connected) {
+      socket.emit("get ranking", {gameID,winner, loser});
+    }
   };
 
     // Get socket to compare score to high score in users and update, remove game from gamesinplay
@@ -120,7 +122,7 @@ const Socket = (function(){
     socket.disconnect();
     socket = null;
   };
-  return { getSocket, connect, disconnect, create, join, enter, chooseCharacter, stopWait, updatePlayers };
+  return { getSocket, connect, disconnect, create, join, enter, chooseCharacter, stopWait, updatePlayers, gameOver };
 
 })();
 
