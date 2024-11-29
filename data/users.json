@@ -40,5 +40,15 @@
   "username": "poo",
   "name": "poo",
   "encryptedPassword": "$2b$10$GLRNt.eM/0HmTAEnajFHs.eSj28OZC1zPIqSaiMY8UeQYJmEWwRuu"
+ },
+ "Rishab": {
+  "username": "Rishab",
+  "name": "Rishab",
+  "encryptedPassword": "$2b$10$X86nOy.1DgdSkaLOR/9Dq.fPmoXjtJDL5LlRs.3XC3PO7/SgWFV06"
+ },
+ "Table": {
+  "username": "Table",
+  "name": "Table",
+  "encryptedPassword": "$2b$10$TFaxyAU1ACnUQaCLLWoUKeLItSbIT5.xDcTE9hAYeTXYayc7e50/S"
  }
 }
